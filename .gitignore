@@ -1,0 +1,14 @@
+
+.backup
+.cache
+auto-save-list
+elpa
+irony
+recentf
+recentf~
+settings.el
+myconfig.el
+projectile-bookmarks.eld
+.mc-lists.el
+ac-comphist.dat
+settings.el~
