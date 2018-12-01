@@ -11,6 +11,10 @@
 (setq custom-file                     (expand-file-name "settings.el"    user-emacs-directory))
 (make-directory user-cache-directory t)
 #+END_SRC
+*** Show matching pair
+#+BEGIN_SRC emacs-lisp
+  (show-paren-mode t)
+#+END_SRC
 *** Use System Clipboard
 #+BEGIN_SRC emacs-lisp
   (setq x-select-enable-clipboard t)
@@ -128,6 +132,13 @@
     :init (dired-async-mode 1))
 #+END_SRC
 ** Packages
+*** Fix Regex
+#+BEGIN_SRC emacs-lisp
+  (use-package pcre2el
+    :ensure t
+    :config (pcre-mode)
+    :diminish pcre-mode)
+#+END_SRC
 *** key-chord
 #+BEGIN_SRC emacs-lisp
   (use-package key-chord
@@ -219,6 +230,11 @@
     (use-package go-snippets
       :ensure t)
 #+END_SRC
+*** auto-yasnippet
+#+BEGIN_SRC emacs-lisp
+  (use-package auto-yasnippet
+    :ensure t)
+#+END_SRC
 *** ggtags
 #+BEGIN_SRC emacs-lisp
   (use-package ggtags
@@ -304,13 +320,6 @@
     :init (unbind-key "C-c v")
     :bind ("C-=" . er/expand-region))
 #+END_SRC
-*** Magit
-#+BEGIN_SRC emacs-lisp
-  (use-package magit
-    :ensure t
-    :bind (("C-c g" . 'magit-status))
-    )
-#+END_SRC
 ** Navigation
 *** Avy
 #+BEGIN_SRC emacs-lisp
@@ -366,9 +375,24 @@
     :ensure t
     :init (global-evil-leader-mode)
     :config
-    (evil-leader/set-leader ",")
-;;    :diminish evil-leader-mode
-)
+    (evil-leader/set-leader ","))
+#+END_SRC
+** Version Control
+*** Magit
+#+BEGIN_SRC emacs-lisp
+  (use-package magit
+    :ensure t
+    :bind (("C-c g" . 'magit-status))
+    )
+#+END_SRC
+*** GitGutter
+#+BEGIN_SRC emacs-lisp
+  (use-package git-gutter
+    :ensure t
+    :init (global-git-gutter-mode 1)
+    :config
+    (git-gutter:linum-setup)
+    :diminish git-gutter-mode)
 #+END_SRC
 ** Look and Feel 
 *** General
@@ -396,7 +420,6 @@
     :init
     (load-theme 'gotham :no-confirm))
 #+END_SRC
-
 **** Zenburn
 #+BEGIN_SRC emacs-lisp
   (use-package zenburn-theme
@@ -450,81 +473,82 @@
 ** Keys and Keybindings
 *** which-key
 #+BEGIN_SRC emacs-lisp
-  (use-package which-key
-    :ensure t
-    :init (which-key-mode)
-    :config
-    (setq which-key-idle-delay 0.3
-	  which-key-sort-order 'which-key-prefix-then-key-order)
-	  (which-key-add-key-based-replacements
-	  ;; Prefixes for global prefixes and minor modes
-	  "C-c @" "outline"
-	  "C-c !" "flycheck"
-	  "C-c 8" "typo"
-	  "C-c 8 -" "typo/dashes"
-	  "C-c 8 <" "typo/left-brackets"
-	  "C-c 8 >" "typo/right-brackets"
-	  ;; Prefixes for my personal bindings
-	  "C-c a" "applications"
-	  "C-c b" "buffers"
-	  "C-c c" "compile-and-comments"
-	  "C-c e" "errors"
-	  "C-c f" "files"
-	  "C-c f v" "variables"
-	  "C-c g" "git"
-	  "C-c g g" "github/gist"
-	  "C-c h" "helm/help"
-	  "C-c i" "insert"
-	  "C-c i l" "licenses"
-	  "C-c j" "jump"
-	  "C-c l" "language/spelling"
-	  "C-c m" "major mode"
-	  "C-c o" "cursors"
-	  "C-c p" "projects"
-	  "C-c p s" "projects/search"
-	  "C-c p x" "projects/execute"
-	  "C-c p 4" "projects/other-window"
-	  "C-c s" "search"
-	  "C-c t" "toggle"
-	  "C-c v" "mark"
-	  "C-c w" "windows/frames"
-	  "C-c x" "text")
+    (use-package which-key
+      :ensure t
+      :init (which-key-mode)
+      :config
+      (setq which-key-idle-delay 0.3
+	    which-key-sort-order 'which-key-prefix-then-key-order)
+	    (which-key-add-key-based-replacements
+	    ;; Prefixes for global prefixes and minor modes
+	    "C-c @" "outline"
+	    "C-c !" "flycheck"
+	    "C-c 8" "typo"
+	    "C-c 8 -" "typo/dashes"
+	    "C-c 8 <" "typo/left-brackets"
+	    "C-c 8 >" "typo/right-brackets"
+	    ;; Prefixes for my personal bindings
+	    "C-c a" "applications"
+	    "C-c b" "buffers"
+	    "C-c c" "compile-and-comments"
+	    "C-c e" "errors"
+	    "C-c f" "files"
+	    "C-c f v" "variables"
+	    "C-c g" "git"
+	    "C-c g g" "github/gist"
+	    "C-c h" "helm/help"
+	    "C-c i" "insert"
+	    "C-c i l" "licenses"
+	    "C-c j" "jump"
+	    "C-c l" "language/spelling"
+	    "C-c m" "major mode"
+	    "C-c o" "cursors"
+	    "C-c p" "projects"
+	    "C-c p s" "projects/search"
+	    "C-c p x" "projects/execute"
+	    "C-c p 4" "projects/other-window"
+	    "C-c s" "search"
+	    "C-c t" "toggle"
+	    "C-c v" "mark"
+	    "C-c w" "windows/frames"
+	    "C-c x" "text"
+	    "C-c y" "auto-yasnippet")
 
-	  (which-key-add-major-mode-key-based-replacements 'markdown-mode
-	    "C-c TAB" "markdown/images"
-	    "C-c C-a" "markdown/links"
-	    "C-c C-c" "markdown/process"
-	    "C-c C-s" "markdown/style"
-	    "C-c C-t" "markdown/header"
-	    "C-c C-x" "markdown/structure"
-	    "C-c m" "markdown/personal")
+	    (which-key-add-major-mode-key-based-replacements 'markdown-mode
+	      "C-c TAB" "markdown/images"
+	      "C-c C-a" "markdown/links"
+	      "C-c C-c" "markdown/process"
+	      "C-c C-s" "markdown/style"
+	      "C-c C-t" "markdown/header"
+	      "C-c C-x" "markdown/structure"
+	      "C-c m" "markdown/personal")
 
-	  (which-key-add-major-mode-key-based-replacements 'emacs-lisp-mode
-	    "C-c m" "elisp/personal"
-	    "C-c m e" "eval")
+	    (which-key-add-major-mode-key-based-replacements 'emacs-lisp-mode
+	      "C-c m" "elisp/personal"
+	      "C-c m e" "eval")
 
-	  (which-key-add-major-mode-key-based-replacements 'js2-mode
-	    "C-c m" "js/personal"
-	    "C-c m r" "refactor")
+	    (which-key-add-major-mode-key-based-replacements 'js2-mode
+	      "C-c m" "js/personal"
+	      "C-c m r" "refactor")
 
-	  (which-key-add-major-mode-key-based-replacements 'go-mode
-	    "C-c m" "go/personal"
-	    "C-c C-j" "go/jump"
-	    "C-c C-i" "go/import")
+	    (which-key-add-major-mode-key-based-replacements 'go-mode
+	      "C-c m" "go/personal"
+	      "C-c C-j" "go/jump"
+	      "C-c C-i" "go/import")
 
-	  (which-key-add-major-mode-key-based-replacements 'rust-mode
-	    "C-c m" "rust/personal"
-	    "C-c C-c" "rust/cargo")
+	    (which-key-add-major-mode-key-based-replacements 'rust-mode
+	      "C-c m" "rust/personal"
+	      "C-c C-c" "rust/cargo")
 
-	  (which-key-add-major-mode-key-based-replacements 'web-mode
-	    "C-c C-a" "web/attributes"
-	    "C-c C-b" "web/blocks"
-	    "C-c C-d" "web/dom"
-	    "C-c C-e" "web/element"
-	    "C-c C-t" "web/tags")
+	    (which-key-add-major-mode-key-based-replacements 'web-mode
+	      "C-c C-a" "web/attributes"
+	      "C-c C-b" "web/blocks"
+	      "C-c C-d" "web/dom"
+	      "C-c C-e" "web/element"
+	      "C-c C-t" "web/tags")
 
-    :diminish which-key-mode
-  )
+      :diminish which-key-mode
+    )
 #+END_SRC
 *** Expand Region Keys
 **** Marking
@@ -558,6 +582,11 @@
   (evil-leader/set-key
     "e" 'evil-end-of-line
     "a" 'move-beginning-of-line)
+#+END_SRC
+*** auto-yasnippet
+#+BEGIN_SRC emacs-lisp
+  (global-set-key (kbd "C-c y c") 'aya-create)
+  (global-set-key (kbd "C-c y e") 'aya-expand)
 #+END_SRC
 ** Windows and Buffers
 *** Buffers
@@ -946,3 +975,4 @@ newly created window
     :defer t
     )
 #+END_SRC
+** Dired
