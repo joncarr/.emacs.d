@@ -106,23 +106,8 @@
 #+BEGIN_SRC emacs-lisp
   (use-package exec-path-from-shell
     :ensure t
-    :if (and (eq system-type 'darwin) (display-graphic-p))
     :config
-    (when (string-match-p "/zsh$" (getenv "SHELL"))
-      ;; Use a non-interactive login shell.  A login shell, because my
-      ;; environment variables are mostly set in `.zprofile'.
-      (setq exec-path-from-shell-arguments '("-l")))
-
-    ;; Import additional environment variables beyond just $PATH
-    (dolist (var '("GOPATH"
-		   "RUST_SRC_PATH"
-		   "CARGO_HOME"
-		   "EMAIL"
-		   ))
-      (add-to-list 'exec-path-from-shell-variables var)))
-
-    ;; Initialize Emacs' environment from the shell
-    (exec-path-from-shell-initialize)
+    (exec-path-from-shell-initialize))
 #+END_SRC
 ** Async 
 *** Use async when possible
