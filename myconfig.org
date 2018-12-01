@@ -305,6 +305,13 @@
     :init (unbind-key "C-c v")
     :bind ("C-=" . er/expand-region))
 #+END_SRC
+*** aggressive-indent
+#+BEGIN_SRC emacs-lisp
+  (use-package aggressive-indent
+    :ensure t
+    :init (global-aggressive-indent-mode 1)
+    :diminish aggressive-indent-mode)
+#+END_SRC
 ** Navigation
 *** Avy
 #+BEGIN_SRC emacs-lisp
@@ -897,78 +904,79 @@ newly created window
 #+END_SRC
 *** Web
 #+BEGIN_SRC emacs-lisp
-    (use-package web-mode
-      :ensure t
-      :defer t
-      :mode (("\\.html\\'" . web-mode)))
+  (use-package web-mode
+    :ensure t
+    :defer t
+    :mode (("\\.html\\'" . web-mode)))
 
-    (use-package css-mode                   ; CSS
-      :defer t
-      :config (setq css-indent-offset 4))
+  (use-package css-mode                   ; CSS
+    :defer t
+    :config (setq css-indent-offset 4))
 
-    (use-package js2-mode                   ; Powerful Javascript mode
-      :ensure t
-      :defer t
-      :interpreter ("node"   . js2-mode)
-      :mode (("\\.js\\'"     . js2-mode)
-	     ("\\.jsx\\'"    . js2-jsx-mode)
-	     ("\\.json$"     . js-mode)
-	     ("\\.template$" . json-mode))
-      :config
-      (progn
-	(add-hook 'js2-mode-hook (lambda () (setq mode-name "js2")))
-	(add-hook 'js2-mode-hook (lambda () (setq js2-basic-offset 4)))
-	(add-hook 'js2-mode-hook (lambda ()
-  				 (bind-key "M-j" 'join-line-or-lines-in-region js2-mode-map)))
-	(setq js2-skip-preprocessor-directives t
-	      js2-mode-show-parse-errors nil
-	      js2-mode-show-strict-warnings nil
-	      js2-highlight-level 3           ; Try to highlight most ECMA built-ins
-	      )
-	(setq-default js2-additional-externs
-		      '("$" "unsafeWindow" "localStorage" "jQuery"
-			"setTimeout" "setInterval" "location" "skewer"
-			"console" "phantom"))))
+  (use-package js2-mode                   ; Powerful Javascript mode
+    :ensure t
+    :defer t
+    :interpreter ("node"   . js2-mode)
+    :mode (("\\.js\\'"     . js2-mode)
+	   ("\\.jsx\\'"    . js2-jsx-mode)
+	   ("\\.json$"     . js-mode)
+	   ("\\.template$" . json-mode))
+    :config
+    (progn
+      (add-hook 'js2-mode-hook (lambda () (setq mode-name "js2")))
+      (add-hook 'js2-mode-hook (lambda () (setq js2-basic-offset 4)))
+      (add-hook 'js2-mode-hook (lambda ()
+			       (bind-key "M-j" 'join-line-or-lines-in-region js2-mode-map)))
+      (setq js2-skip-preprocessor-directives t
+	    js2-mode-show-parse-errors nil
+	    js2-mode-show-strict-warnings nil
+	    js2-highlight-level 3           ; Try to highlight most ECMA built-ins
+	    )
+      (setq-default js2-additional-externs
+		    '("$" "unsafeWindow" "localStorage" "jQuery"
+		      "setTimeout" "setInterval" "location" "skewer"
+		      "console" "phantom"))))
 
-    (use-package js2-refactor               ; Refactor Javascript
-      :ensure t
-      :defer t
-      :init
-      (add-hook 'js2-mode-hook 'js2-refactor-mode)
-      :config
-      (js2r-add-keybindings-with-prefix "C-c m r"))
+  (use-package js2-refactor               ; Refactor Javascript
+    :ensure t
+    :defer t
+    :init
+    (add-hook 'js2-mode-hook 'js2-refactor-mode)
+    :config
+    (js2r-add-keybindings-with-prefix "C-c m r"))
 
-    (use-package web-mode
-      :defer t
-      :init (progn
-	      (add-to-list 'auto-mode-alist '("\\.gohtml\\'" . web-mode))
-	      (add-to-list 'auto-mode-alist '("\\.html?\\'" . web-mode)))
-      :config (progn
-		(add-hook 'web-mode-hook
-			  (lambda ()
-			    (setq web-mode-style-padding 4)
-			    (setq web-mode-script-padding 4)))))
+  (use-package web-mode
+    :defer t
+    :init (progn
+	    (add-to-list 'auto-mode-alist '("\\.gohtml?\\'" . web-mode))
+	    (add-to-list 'auto-mode-alist '("\\.html?\\'" . web-mode))
+	    (add-to-list 'auto-mode-alist '("\\.vue?\\'" . web-mode)))
+    :config (progn
+	      (add-hook 'web-mode-hook
+			(lambda ()
+			  (setq web-mode-style-padding 4)
+			  (setq web-mode-script-padding 4)))))
 
-    (use-package nvm
-      :defer t)
-    (use-package html-script-src
-      :defer t)
-    (use-package sass-mode
-      :defer t)
+  (use-package nvm
+    :defer t)
+  (use-package html-script-src
+    :defer t)
+  (use-package sass-mode
+    :defer t)
 
-    (use-package tern                       ; Javascript IDE backend
-      :ensure t
-      :defer t
-      :init (add-hook 'js2-mode-hook #'tern-mode)
-      :config
-      ;; Don't generate port files
-      (add-to-list 'tern-command "--no-port-file" 'append))
+  (use-package tern                       ; Javascript IDE backend
+    :ensure t
+    :defer t
+    :init (add-hook 'js2-mode-hook #'tern-mode)
+    :config
+    ;; Don't generate port files
+    (add-to-list 'tern-command "--no-port-file" 'append))
 
-    (use-package company-tern               ; Auto-completion for javascript
-      :ensure t
-      :defer t
-      :after company
-      :config (add-to-list 'company-backends 'company-tern))
+  (use-package company-tern               ; Auto-completion for javascript
+    :ensure t
+    :defer t
+    :after company
+    :config (add-to-list 'company-backends 'company-tern))
 #+END_SRC
 *** Python
 #+BEGIN_SRC emacs-lisp
