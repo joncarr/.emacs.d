@@ -146,7 +146,7 @@
     (diminish 'eldoc-mode)
     (diminish 'undo-tree-mode)
     (diminish 'auto-revert-mode)
-  (diminish 'subword-mode)
+    (diminish 'subword-mode)
 )
 #+END_SRC
 *** Helm
@@ -603,26 +603,25 @@
 #+BEGIN_SRC emacs-lisp
   (global-set-key (kbd "C-x b") 'ibuffer)
   (setq ibuffer-saved-filter-groups
-	(quote (("default"
-		 ("dired" (mode . dired-mode))
-		 ("org" (name . "^.*org$"))
-		 ("web" (or (mode . web-mode) (mode . js2-mode)))
-		 ("shell" (or (mode . eshell-mode) (mode . shell-mode))))
-		("programming" (or
-				(mode . go-mode)
-				(mode . rust-mode)
-				(mode . python-mode)
-				(mode . c-mode)
-				(mode . c++-mode))
-		 )
-		("emacs" (or
-			  (name . "^\\*scratch\\*$")
-			  (name . "^\\*Messages\\*$")))
-		)))
+        (quote (("default"
+                 ("dired" (mode . dired-mode))
+                 ("org" (name . "^.*org$"))
+                 ("web" (or (mode . web-mode) (mode . js2-mode)))
+                 ("shell" (or (mode . eshell-mode) (mode . shell-mode))))
+                ("programming" (or
+                                (or (mode . go-mode) (name . "^.*go$"))
+                                (mode . rust-mode)
+                                (mode . python-mode)
+                                (mode . c-mode)
+                                (mode . c++-mode)))
+                ("emacs" (or
+                          (name . "^\\*scratch\\*$")
+                          (name . "^\\*Messages\\*$")))
+                )))
   (add-hook 'ibuffer-mode-hook
-	    (lambda ()
-	      (ibuffer-auto-mode 1)
-	      (ibuffer-switch-to-saved-filter-groups "default")))
+            (lambda ()
+              (ibuffer-auto-mode 1)
+              (ibuffer-switch-to-saved-filter-groups "default")))
 
   ;; Don't show filter groups if there are no buffers in that group
   (setq ibuffer-show-empty-filter-groups nil)
@@ -788,74 +787,79 @@ newly created window
 #+END_SRC
 *** Go
 #+BEGIN_SRC emacs-lisp
-    (use-package go-projectile
-      :ensure t)
+  (use-package go-projectile
+    :ensure t)
 
-    (use-package go-dlv
-      :ensure t)
+  (use-package go-dlv
+    :ensure t)
 
-    (use-package go-gopath
-      :ensure t)
+  (use-package go-gopath
+    :ensure t)
 
-    (use-package go-mode
-      :ensure t
-      :init
-      (unbind-key "C-c C-j" go-mode-map)
-      :bind (
-	     ("C-c C-j a" . go-goto-arguments)
-	     ("C-c C-j i" . go-goto-imports)
-	     ("C-c C-j f" . go-goto-function)
-	     ("C-c C-j n" . go-goto-function-name)
-	     ("C-c C-j r" . go-goto-return-values)
-	     ("C-c C-j m" . go-goto-method-receiver)
-	     ("C-c C-j c" . go-goto-docstring)
-	     ("C-c C-j d" . go-guru-definition)
-	     ("C-c C-i a" . go-import-add)
-	     ("C-c C-i r" . go-remove-unused-imports)
-	     ("C-c C-g p" . go-guru-peers)
-	     ("C-c C-g <" . go-guru-callers)
-	     ("C-c C-g >" . go-guru-callees)
-	     ("C-c C-g d" . go-guru-describe)
-	     ("C-c C-g p" . go-guru-pointsto)
-	     ("C-c C-g f" . go-guru-freevars)
-	     ("C-c C-g r" . go-guru-referrers)
-	     ("C-c C-g e" . go-guru-whicherrs)
-	     ("C-c C-g s" . go-guru-set-scope)
-	     ("C-c C-g c" . go-guru-callstack)
-	     ("C-c C-g i" . go-guru-implements)
-	     ("C-c C-g x" . go-guru-expand-region))
-      :config
-      (setq gofmt-command "goimports")
-      (add-hook 'before-save-hook 'gofmt-before-save))
+  (use-package go-mode
+    :ensure t
+    :init
+    (unbind-key "C-c C-j" go-mode-map)
+    :bind (
+           ("C-c C-j a" . go-goto-arguments)
+           ("C-c C-j i" . go-goto-imports)
+           ("C-c C-j f" . go-goto-function)
+           ("C-c C-j n" . go-goto-function-name)
+           ("C-c C-j r" . go-goto-return-values)
+           ("C-c C-j m" . go-goto-method-receiver)
+           ("C-c C-j c" . go-goto-docstring)
+           ("C-c C-j d" . go-guru-definition)
+           ("C-c C-i a" . go-import-add)
+           ("C-c C-i r" . go-remove-unused-imports)
+           ("C-c C-g p" . go-guru-peers)
+           ("C-c C-g <" . go-guru-callers)
+           ("C-c C-g >" . go-guru-callees)
+           ("C-c C-g d" . go-guru-describe)
+           ("C-c C-g p" . go-guru-pointsto)
+           ("C-c C-g f" . go-guru-freevars)
+           ("C-c C-g r" . go-guru-referrers)
+           ("C-c C-g e" . go-guru-whicherrs)
+           ("C-c C-g s" . go-guru-set-scope)
+           ("C-c C-g c" . go-guru-callstack)
+           ("C-c C-g i" . go-guru-implements)
+           ("C-c C-g x" . go-guru-expand-region))
+    :config
+    (setq gofmt-command "goimports")
+    (add-hook 'before-save-hook 'gofmt-before-save))
 
-    (use-package go-impl
-      :ensure t
-      :after go-mode)
+  (use-package go-impl
+    :ensure t
+    :after go-mode)
 
-    (use-package go-eldoc
-      :ensure t
-      :after go-mode
-      :config
-      (add-hook 'go-mode-hook 'go-eldoc-setup))
+  (use-package go-eldoc
+    :ensure t
+    :after go-mode
+    :config
+    (add-hook 'go-mode-hook 'go-eldoc-setup))
 
-    (use-package go-guru
-      :ensure t
-      :after go-mode
-      :config
-      (add-hook 'go-mode-hook #'go-guru-hl-identifier-mode))
+  (use-package go-guru
+    :ensure t
+    :after go-mode
+    :config
+    (add-hook 'go-mode-hook #'go-guru-hl-identifier-mode))
 
-    (use-package company-go
-      :ensure t
-      :after go-mode
-      :config
-      (setq company-idle-delay .1)
-      (setq company-tooltip-limit 20)
-      (setq company-tooltip-align-annotations t
-	    company-go-show-annotation t
-	    )
-      (add-hook 'go-mode-hook (lambda ()
-				(set(make-local-variable 'company-backends) '(company-go))
-				(company-mode))))
+  (use-package go-add-tags
+    :ensure t
+    :config
+    (define-key go-mode-map (kbd "C-c m t") #'go-add-tags))
+
+  (use-package company-go
+    :ensure t
+    :after go-mode
+    :config
+    (setq company-idle-delay .1)
+    (setq company-tooltip-limit 20)
+    (setq company-tooltip-align-annotations t
+          company-go-show-annotation t
+          )
+    (add-hook 'go-mode-hook (lambda ()
+                              (set(make-local-variable 'company-backends) '(company-go))
+                              (company-mode))))
 #+END_SRC
 *** Rust
 #+BEGIN_SRC emacs-lisp
