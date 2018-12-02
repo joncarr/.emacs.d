@@ -101,6 +101,11 @@
 #+BEGIN_SRC emacs-lisp
   (delete-selection-mode 1)
 #+END_SRC
+*** Use Spaces instead of tabs
+#+BEGIN_SRC emacs-lisp
+  (setq-default indent-tabs-mode nil)
+  (setq tab-stop (number-sequence 4 120 4))
+#+END_SRC
 ** Environment
 *** Exec Path From Shell
 #+BEGIN_SRC emacs-lisp
@@ -236,15 +241,16 @@
   (use-package emmet-mode
     :ensure t
     :config
+    (add-hook 'web-mode-hook 'emmet-mode)
     (add-hook 'sgml-mode-hook 'emmet-mode)
     (add-hook 'css-mode-hook 'emmet-mode)
     (add-hook 'emmet-mode-hook (lambda ()
-			      (setq emmet-indent-after-insert nil)
-			      (setq emmet-indentation 4)
-			      (setq emmet-move-cursor-between-quotes t)
-			    )
+				 (setq emmet-indent-after-insert nil)
+				 (setq emmet-indentation 4)
+				 (setq emmet-move-cursor-between-quotes t)
+				 )
+	      )
     )
-)
 #+END_SRC
 *** projectile
 #+BEGIN_SRC emacs-lisp
