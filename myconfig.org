@@ -944,24 +944,24 @@ newly created window
     :defer t
     :interpreter ("node"   . js2-mode)
     :mode (("\\.js\\'"     . js2-mode)
-	   ("\\.jsx\\'"    . js2-jsx-mode)
-	   ("\\.json$"     . js-mode)
-	   ("\\.template$" . json-mode))
+           ("\\.jsx\\'"    . js2-jsx-mode)
+           ("\\.json$"     . js-mode)
+           ("\\.template$" . json-mode))
     :config
     (progn
       (add-hook 'js2-mode-hook (lambda () (setq mode-name "js2")))
       (add-hook 'js2-mode-hook (lambda () (setq js2-basic-offset 4)))
       (add-hook 'js2-mode-hook (lambda ()
-			       (bind-key "M-j" 'join-line-or-lines-in-region js2-mode-map)))
+                               (bind-key "M-j" 'join-line-or-lines-in-region js2-mode-map)))
       (setq js2-skip-preprocessor-directives t
-	    js2-mode-show-parse-errors nil
-	    js2-mode-show-strict-warnings nil
-	    js2-highlight-level 3           ; Try to highlight most ECMA built-ins
-	    )
+            js2-mode-show-parse-errors nil
+            js2-mode-show-strict-warnings nil
+            js2-highlight-level 3           ; Try to highlight most ECMA built-ins
+            )
       (setq-default js2-additional-externs
-		    '("$" "unsafeWindow" "localStorage" "jQuery"
-		      "setTimeout" "setInterval" "location" "skewer"
-		      "console" "phantom"))))
+                    '("$" "unsafeWindow" "localStorage" "jQuery"
+                      "setTimeout" "setInterval" "location" "skewer"
+                      "console" "phantom"))))
 
   (use-package js2-refactor               ; Refactor Javascript
     :ensure t
@@ -974,14 +974,14 @@ newly created window
   (use-package web-mode
     :defer t
     :init (progn
-	    (add-to-list 'auto-mode-alist '("\\.gohtml?\\'" . web-mode))
-	    (add-to-list 'auto-mode-alist '("\\.html?\\'" . web-mode))
-	    (add-to-list 'auto-mode-alist '("\\.vue?\\'" . web-mode)))
+            (add-to-list 'auto-mode-alist '("\\.gohtml?\\'" . web-mode))
+            (add-to-list 'auto-mode-alist '("\\.html?\\'" . web-mode))
+            (add-to-list 'auto-mode-alist '("\\.vue?\\'" . web-mode)))
     :config (progn
-	      (add-hook 'web-mode-hook
-			(lambda ()
-			  (setq web-mode-style-padding 4)
-			  (setq web-mode-script-padding 4)))))
+              (add-hook 'web-mode-hook
+                        (lambda ()
+                          (setq web-mode-style-padding 4)
+                          (setq web-mode-script-padding 4)))))
 
   (use-package nvm
     :defer t)
@@ -1003,6 +1003,10 @@ newly created window
     :defer t
     :after company
     :config (add-to-list 'company-backends 'company-tern))
+
+  (use-package company-web
+    :ensure t
+    :config (add-to-list 'company-backends 'company-web))
 #+END_SRC
 *** Python
 #+BEGIN_SRC emacs-lisp
