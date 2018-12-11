@@ -106,7 +106,8 @@
   (use-package exec-path-from-shell
     :ensure t
     :config
-    (exec-path-from-shell-initialize))
+    (exec-path-from-shell-initialize)
+    (exec-path-from-shell-copy-env "PATH"))
 #+END_SRC
 ** Async 
 *** Use async when possible
@@ -458,7 +459,7 @@
     (dashboard-setup-startup-hook)
     (setq dashboard-items '(
 			    (recents . 5)
-			    (projects . 5)
+			    (projects . 10)
 			    ))
     (setq dashboard-banner-logo-title "")
     (setq dashboard-startup-banner "~/.emacs.d/img/dashLogo_gruvBox.png"))
@@ -565,7 +566,7 @@
 **** Find file in project
 #+BEGIN_SRC emacs-lisp
   (global-set-key (kbd "C-c m p") 'find-file-in-project)
-  (evil-leader/set-key "p" 'find-file-in-project)	
+  (evil-leader/set-key "p" 'helm-mini)	
 #+END_SRC
 **** evil expand region
 #+BEGIN_SRC emacs-lisp
@@ -871,6 +872,31 @@ newly created window
     :config
     (define-key go-mode-map (kbd "C-c m t") #'go-add-tags))
 
+  ;; (use-package lsp-ui
+  ;;   :ensure t)
+
+  ;; (use-package lsp-mode
+  ;;   :ensure t
+  ;;   :init
+  ;;   (setq lsp-prefer-flymake nil)
+  ;;   :config
+  ;;   (require 'lsp-clients)
+  ;;   (add-hook 'go-mode-hook 'lsp)
+  ;;   (add-hook 'go-mode-hook 'lsp-mode)
+  ;;   (add-hook 'lsp-mode-hook 'lsp-ui-mode)
+  ;;   (lsp--auto-configure))
+
+  ;; (use-package company-lsp
+  ;;   :ensure t
+  ;;   :config
+  ;;   (push 'company-lsp company-backends))
+
+  ;; (use-package lsp-go
+  ;;   :ensure t
+  ;;   :config
+  ;;   (setq lsp-clients-go-server "~/code/go/bin/go-langserver")
+  ;;   (add-hook 'go-mode-hook #'lsp-go-enable))
+
   (use-package company-go
     :ensure t
     :after go-mode
@@ -1020,6 +1046,18 @@ newly created window
   (use-package elpy
     :ensure t
     :init (elpy-enable))
+#+END_SRC
+*** Kotlin 
+#+BEGIN_SRC emacs-lisp
+  (use-package kotlin-mode
+    :ensure t
+    :defer t
+    :config
+    (add-to-list 'auto-mode-alist '("\\.kt\\'" . kotlin-mode)))
+
+
+  (use-package flycheck-kotlin
+    :ensure t)
 #+END_SRC
 ** Games
 *** Typing of Emacs 
