@@ -76,21 +76,6 @@
 #+BEGIN_SRC emacs-lisp
   (global-set-key (kbd "<s-return>") 'ansi-term)
 #+END_SRC
-*** Configuration Edit and Reload
-**** Edit
-#+BEGIN_SRC emacs-lisp
-  (defun config-visit ()
-    (interactive)
-    (find-file "~/.emacs.d/myconfig.org"))
-  (global-set-key (kbd "C-c e") 'config-visit)
-#+END_SRC
-**** Reload
-#+BEGIN_SRC emacs-lisp
-  (defun config-reload ()
-    (interactive)
-    (org-babel-load-file (expand-file-name "~/.emacs.d/myconfig.org")))
-  (global-set-key (kbd "C-c r") 'config-reload)
-#+END_SRC
 *** Delete selection mode
 #+BEGIN_SRC emacs-lisp
   (delete-selection-mode 1)
@@ -103,11 +88,11 @@
 ** Environment
 *** Exec Path From Shell
 #+BEGIN_SRC emacs-lisp
-  (use-package exec-path-from-shell
-    :ensure t
-    :config
-    (exec-path-from-shell-initialize)
-    (exec-path-from-shell-copy-env "PATH"))
+  ;; (use-package exec-path-from-shell
+  ;;   :ensure t
+  ;;   :config
+  ;;   (exec-path-from-shell-initialize)
+  ;;   (exec-path-from-shell-copy-env "PATH"))
 #+END_SRC
 ** Async 
 *** Use async when possible
@@ -156,6 +141,11 @@
     (helm-mode 1)
     :config
     (setq helm-M-x-fuzzy-match t))
+
+  (use-package helm-make
+    :ensure t
+    :config
+    (setq helm-make-fuzzy-matching 1))
 #+END_SRC
 *** Company
 #+BEGIN_SRC emacs-lisp
@@ -313,12 +303,24 @@
     :init (global-aggressive-indent-mode 1)
     :diminish aggressive-indent-mode)
 #+END_SRC
-*** Highlight TODOS
+*** Highlight todos
 #+BEGIN_SRC emacs-lisp
   (use-package hl-todo
     :ensure t
     :config
     (global-hl-todo-mode))
+#+END_SRC
+*** lorem-ipsum
+#+BEGIN_SRC emacs-lisp
+  (use-package lorem-ipsum
+    :ensure t
+    :defer t)
+#+END_SRC
+*** uuidgen
+#+BEGIN_SRC emacs-lisp
+  (use-package uuidgen
+    :ensure t
+    :defer t)
 #+END_SRC
 ** Navigation
 *** Avy
@@ -356,7 +358,7 @@
     :init (evil-mode 1)
     :config
     (key-chord-define evil-insert-state-map "jj" 'evil-normal-state)
-    (define-key evil-normal-state-map (kbd "SPC") 'evil-avy-goto-word-0)
+   ;; (define-key evil-normal-state-map (kbd "") 'evil-avy-goto-word-0) 
     :diminish evil-mode)
 
   (use-package evil-snipe
@@ -375,15 +377,14 @@
     :ensure t
     :init (global-evil-leader-mode)
     :config
-    (evil-leader/set-leader ","))
+    (evil-leader/set-leader "SPC"))
 #+END_SRC
 ** Version Control
 *** Magit
 #+BEGIN_SRC emacs-lisp
   (use-package magit
-    :ensure t
-    :bind (("C-c g" . 'magit-status))
-    )
+    :ensure t)
+
 #+END_SRC
 *** GitGutter
 #+BEGIN_SRC emacs-lisp
@@ -441,7 +442,7 @@
     :ensure t
     :config
     (require 'spaceline-config)
-    (setq powerline-default-separator (quote arrow))
+    (setq powerline-default-separator (quote slant))
     (spaceline-spacemacs-theme))
 #+END_SRC
 *** Beacon
@@ -469,130 +470,6 @@
   (use-package rainbow-delimiters
     :ensure t
     :init (rainbow-delimiters-mode 1))
-#+END_SRC
-** Keys and Keybindings
-*** which-key
-#+BEGIN_SRC emacs-lisp
-  (use-package which-key
-    :ensure t
-    :init (which-key-mode)
-    :config
-    (setq which-key-idle-delay 0.3
-          which-key-sort-order 'which-key-prefix-then-key-order)
-    (which-key-add-key-based-replacements
-      ;; Prefixes for global prefixes and minor modes
-      "C-c @" "outline"
-      "C-c !" "flycheck"
-      "C-c 8" "typo"
-      "C-c 8 -" "typo/dashes"
-      "C-c 8 <" "typo/left-brackets"
-      "C-c 8 >" "typo/right-brackets"
-      ;; Prefixes for my personal bindings
-      "C-c a" "applications"
-      "C-c b" "buffers"
-      "C-c c" "compile-and-comments"
-      "C-c e" "errors"
-      "C-c f" "files"
-      "C-c f v" "variables"
-      "C-c g" "git"
-      "C-c g g" "github/gist"
-      "C-c h" "helm/help"
-      "C-c i" "insert"
-      "C-c i l" "licenses"
-      "C-c j" "jump"
-      "C-c l" "language/spelling"
-      "C-c m" "major mode"
-      "C-c o" "cursors"
-      "C-c p" "projects"
-      "C-c p s" "projects/search"
-      "C-c p x" "projects/execute"
-      "C-c p 4" "projects/other-window"
-      "C-c s" "search"
-      "C-c t" "TODOS"
-      "C-c v" "mark"
-      "C-c w" "windows/frames"
-      "C-c x" "text"
-      "C-c y" "auto-yasnippet")
-
-    (which-key-add-major-mode-key-based-replacements 'markdown-mode
-      "C-c TAB" "markdown/images"
-      "C-c C-a" "markdown/links"
-      "C-c C-c" "markdown/process"
-      "C-c C-s" "markdown/style"
-      "C-c C-t" "markdown/header"
-      "C-c C-x" "markdown/structure"
-      "C-c m" "markdown/personal")
-
-    (which-key-add-major-mode-key-based-replacements 'emacs-lisp-mode
-      "C-c m" "elisp/personal"
-      "C-c m e" "eval")
-
-    (which-key-add-major-mode-key-based-replacements 'js2-mode
-      "C-c m" "js/personal"
-      "C-c m r" "refactor")
-
-    (which-key-add-major-mode-key-based-replacements 'go-mode
-      "C-c m" "go/personal"
-      "C-c C-j" "go/jump"
-      "C-c C-i" "go/import")
-
-    (which-key-add-major-mode-key-based-replacements 'rust-mode
-      "C-c m" "rust/personal"
-      "C-c C-c" "rust/cargo")
-
-    (which-key-add-major-mode-key-based-replacements 'web-mode
-      "C-c C-a" "web/attributes"
-      "C-c C-b" "web/blocks"
-      "C-c C-d" "web/dom"
-      "C-c C-e" "web/element"
-      "C-c C-t" "web/tags")
-
-    :diminish which-key-mode
-    )
-#+END_SRC
-*** Expand Region Keys
-**** Marking
-#+BEGIN_SRC emacs-lisp
-  (global-set-key (kbd "C-c v w") 'er/mark-word)
-  (global-set-key (kbd "C-c v u") 'er/mark-url)
-  (global-set-key (kbd "C-c v e") 'er/mark-email)
-  (global-set-key (kbd "C-c v s") 'er/mark-sentence)
-  (global-set-key (kbd "C-c v i") 'er/mark-inside-quotes)
-  (global-set-key (kbd "C-c v o") 'er/mark-outside-quotes)
-  (global-set-key (kbd "C-c v f") 'er/mark-defun)
-  (global-set-key (kbd "C-c v c") 'er/mark-comment)
-#+END_SRC
-*** Globals
-**** Find file in project
-#+BEGIN_SRC emacs-lisp
-  (global-set-key (kbd "C-c m p") 'find-file-in-project)
-  (evil-leader/set-key "p" 'helm-mini)	
-#+END_SRC
-**** evil expand region
-#+BEGIN_SRC emacs-lisp
-  (evil-leader/set-key
-    "." 'er/expand-region)
-#+END_SRC
-**** evil kill current buffer
-#+BEGIN_SRC emacs-lisp
-  (evil-leader/set-key "k" 'kill-current-buffer)
-#+END_SRC
-**** TODOS
-#+BEGIN_SRC emacs-lisp
-  (global-set-key (kbd "C-c t n") 'hl-todo-next)
-  (global-set-key (kbd "C-c t p") 'hl-todo-previous)
-  (global-set-key (kbd "C-c t o") 'hl-todo-occur)
-#+END_SRC
-*** evil start of line and end of line with leader
-#+BEGIN_SRC emacs-lisp
-  (evil-leader/set-key
-    "e" 'evil-end-of-line
-    "a" 'move-beginning-of-line)
-#+END_SRC
-*** auto-yasnippet
-#+BEGIN_SRC emacs-lisp
-  (global-set-key (kbd "C-c y c") 'aya-create)
-  (global-set-key (kbd "C-c y e") 'aya-expand)
 #+END_SRC
 ** Windows and Buffers
 *** Buffers
@@ -750,6 +627,18 @@ newly created window
     :bind ("C-c f s" . sudo-edit))
 #+END_SRC
 ** Convenience Functions
+*** visit configuration file
+#+BEGIN_SRC emacs-lisp
+  (defun config-visit ()
+    (interactive)
+    (find-file "~/.emacs.d/myconfig.org"))
+#+END_SRC
+*** reload configuration file
+#+BEGIN_SRC emacs-lisp
+  (defun config-reload ()
+    (interactive)
+    (org-babel-load-file (expand-file-name "~/.emacs.d/myconfig.org")))
+#+END_SRC
 *** copy-whole-line
 #+BEGIN_SRC emacs-lisp
   (defun copy-whole-line ()
@@ -823,33 +712,10 @@ newly created window
   (use-package go-mode
     :ensure t
     :init
-    (unbind-key "C-c C-j" go-mode-map)
-    :bind (
-           ("C-c C-j a" . go-goto-arguments)
-           ("C-c C-j i" . go-goto-imports)
-           ("C-c C-j f" . go-goto-function)
-           ("C-c C-j n" . go-goto-function-name)
-           ("C-c C-j r" . go-goto-return-values)
-           ("C-c C-j m" . go-goto-method-receiver)
-           ("C-c C-j c" . go-goto-docstring)
-           ("C-c C-j d" . go-guru-definition)
-           ("C-c C-i a" . go-import-add)
-           ("C-c C-i r" . go-remove-unused-imports)
-           ("C-c C-g p" . go-guru-peers)
-           ("C-c C-g <" . go-guru-callers)
-           ("C-c C-g >" . go-guru-callees)
-           ("C-c C-g d" . go-guru-describe)
-           ("C-c C-g p" . go-guru-pointsto)
-           ("C-c C-g f" . go-guru-freevars)
-           ("C-c C-g r" . go-guru-referrers)
-           ("C-c C-g e" . go-guru-whicherrs)
-           ("C-c C-g s" . go-guru-set-scope)
-           ("C-c C-g c" . go-guru-callstack)
-           ("C-c C-g i" . go-guru-implements)
-           ("C-c C-g x" . go-guru-expand-region))
-    :config
-    (setq gofmt-command "goimports")
-    (add-hook 'before-save-hook 'gofmt-before-save))
+    (unbind-key "C-c C-j" go-mode-map))
+  :config
+  (setq gofmt-command "goimports")
+  (add-hook 'before-save-hook 'gofmt-before-save)
 
   (use-package go-impl
     :ensure t
@@ -1058,6 +924,296 @@ newly created window
 
   (use-package flycheck-kotlin
     :ensure t)
+#+END_SRC
+** Keys and Keybindings
+*** which-key
+#+BEGIN_SRC emacs-lisp
+  (use-package which-key
+    :ensure t
+    :init (which-key-mode)
+    :config
+    (setq which-key-idle-delay 0.3
+          which-key-sort-order 'which-key-prefix-then-key-order)
+    (which-key-add-key-based-replacements
+      ;; Prefixes for personal bindings
+      "SPC b" "buffers"
+      "SPC B" "bookmarks"
+      "SPC c" "compile"
+      "SPC e" "errors"
+      "SPC f" "files"
+      "SPC f c" "configuration"
+      "SPC g" "go/guru"
+      "SPC G" "git"
+      "SPC h" "help"
+      "SPC h d" "describe"
+      "SPC i" "insert"
+      "SPC i l" "lorem ipsum"
+      "SPC i u" "UUID"
+      "SPC J" "jump"
+      "SPC m" "major mode"
+      "SPC n" "navigate/narrow"
+      "SPC n n" "narrow"
+      "SPC o" "joncarr"
+      "SPC o g" "golang"
+      "SPC p" "projects"
+      "SPC p s" "projects/search"
+      "SPC s" "search"
+      "SPC t" "todos"
+      "SPC T" "toggle"
+      "SPC v" "mark"
+      "SPC w" "window"
+      "SPC w d" "delete"
+      "SPC w s" "split"
+      "SPC x" "text"
+      "SPC x d" "downcase"
+      "SPC x u" "upcase"
+      "SPC x t" "transpose"
+      "SPC y" "yasnippet")
+
+    (which-key-add-major-mode-key-based-replacements 'markdown-mode
+      "TAB" "markdown/images"
+      "C-a" "markdown/links"
+      "C-c" "markdown/process"
+      "C-s" "markdown/style"
+      "C-t" "markdown/header"
+      "C-x" "markdown/structure"
+      "m" "markdown/personal")
+
+    (which-key-add-major-mode-key-based-replacements 'emacs-lisp-mode
+      "m" "elisp/personal"
+      "m e" "eval")
+
+    (which-key-add-major-mode-key-based-replacements 'js2-mode
+      "m" "js/personal"
+      "m r" "refactor")
+
+    (which-key-add-major-mode-key-based-replacements 'go-mode
+      "SPC m" "go/personal"
+      "SPC j" "go/jump"
+      "SPC i" "go/import"
+      "SPC g" "go/guru")
+
+    (which-key-add-major-mode-key-based-replacements 'rust-mode
+      "SPC m" "rust/personal"
+      "SPC c" "rust/cargo")
+
+    (which-key-add-major-mode-key-based-replacements 'web-mode
+      "C-c C-a" "web/attributes"
+      "C-c C-b" "web/blocks"
+      "C-c C-d" "web/dom"
+      "C-c C-e" "web/element"
+      "C-c C-t" "web/tags")
+
+    :diminish which-key-mode
+    )
+#+END_SRC
+*** Personal Key Bindings
+**** general
+#+BEGIN_SRC emacs-lisp
+  (evil-leader/set-key
+    "SPC" 'helm-M-x
+    "." 'er/expand-region
+    "op" 'helm-mini
+    "ogi" 'go-impl)
+
+  (global-set-key (kbd "C-c r") 'config-reload)
+  (global-set-key (kbd "C-c e") 'config-visit)
+#+END_SRC
+**** BOOKMARKS
+#+BEGIN_SRC emacs-lisp
+  (evil-leader/set-key
+    "Bl" 'list-bookmarks)
+#+END_SRC
+**** BUFFERS
+#+BEGIN_SRC emacs-lisp
+  (evil-leader/set-key
+    "bk" 'kill-current-buffer
+    "bi" 'ibuffer
+    "bs" 'helm-buffers-list
+    "br" 'revert-buffer)
+#+END_SRC
+**** COMPILE
+#+BEGIN_SRC emacs-lisp
+  (evil-leader/set-key
+    "cc" 'helm-make-projectile
+    "cC" 'compile
+    "ck" 'kill-compilation
+    "cm" 'helm-make
+    "cr" 'recompile)
+#+END_SRC
+**** ERRORS
+#+BEGIN_SRC emacs-lisp
+  (evil-leader/set-key
+    "ec" 'flycheck-clear
+    "eh" 'flycheck-describe-checker
+    "el" 'flycheck-list-errors
+    "en" 'flycheck-next-error
+    "ep" 'flycheck-previous-error)
+#+END_SRC
+**** FILES
+#+BEGIN_SRC emacs-lisp
+  (evil-leader/set-key
+    "ff" 'helm-find-files
+    "fr" 'helm-recentf
+    "fs" 'sudo-edit
+    "ft" 'neotree-toggle
+    "fce" 'config-visit 
+    "fcr" 'config-reload)
+#+END_SRC
+**** GIT
+#+BEGIN_SRC emacs-lisp
+  (evil-leader/set-key
+    "GS" 'magit-status
+    "Gb" 'magit-branch-create
+    "Gc" 'magit-clone
+    "Gd" 'magit-branch-delete
+    "Gf" 'magit-fetch
+    "Gi" 'magit-init
+    "Gm" 'magit-merge
+    "GM" 'magit-merge-squash
+    "Gp" 'magit-pull
+    "Gr" 'magit-rebase)
+#+END_SRC
+**** HELP
+#+BEGIN_SRC emacs-lisp
+  (evil-leader/set-key
+    "hdc" 'describe-char
+    "hdf" 'describe-function
+    "hdF" 'describe-face
+    "hdk" 'describe-key
+    "hdm" 'describe-mode
+    "hdp" 'describe-package
+    "hdv" 'describe-variajble)
+#+END_SRC
+**** INSERT
+#+BEGIN_SRC emacs-lisp
+  (evil-leader/set-key
+    "ill" 'lorem-ipsum-insert-list
+    "ilp" 'lorem-ipsum-insert-paragraphs
+    "ils" 'lorem-ipsum-insert-sentences
+    "iu1" 'uuidgen-1
+    "iu4" 'uuidgen-4)
+#+END_SRC
+**** JUMP
+#+BEGIN_SRC emacs-lisp
+  (evil-leader/set-key
+    "Jw" 'avy-goto-word-1
+    "Jl" 'avy-goto-line
+    "Jp" 'avy-pop-mark
+    "Jc" 'avy-goto-char-2
+    "Js" 'avy-goto-symbol-1)
+#+END_SRC
+**** MAJOR MODE SPECIFIC
+***** Go Mode
+#+BEGIN_SRC emacs-lisp
+  (evil-leader/set-key
+    "ja" 'go-goto-arguments
+    "ji" 'go-goto-imports
+    "jf" 'go-goto-function
+    "jn" 'go-goto-function-name
+    "jr" 'go-goto-return-values
+    "jm" 'go-goto-method-receiver
+    "jc" 'go-goto-docstring
+    "jd" 'go-guru-definition
+    "ia" 'go-import-add
+    "ir" 'go-remove-unused-imports
+    "gp" 'go-guru-peers
+    "g<" 'go-guru-callers
+    "g>" 'go-guru-callees
+    "gd" 'go-guru-describe
+    "gp" 'go-guru-pointsto
+    "gf" 'go-guru-freevars
+    "gr" 'go-guru-referrers
+    "ge" 'go-guru-whicherrs
+    "gs" 'go-guru-set-scope
+    "gc" 'go-guru-callstack
+    "gi" 'go-guru-implements
+    "gx" 'go-guru-expand-region)
+#+END_SRC
+**** MARKING
+#+BEGIN_SRC emacs-lisp
+  (evil-leader/set-key
+    "vw" 'er/mark-word
+    "vu" 'er/mark-url
+    "ve" 'er/mark-email
+    "vs" 'er/mark-sentence
+    "vi" 'er/mark-inside-quotes
+    "vo" 'er/mark-outside-quotes
+    "vf" 'er/mark-defun
+    "vc" 'er/mark-comment)
+#+END_SRC
+**** NAVIGATE/NARROW
+#+BEGIN_SRC emacs-lisp
+  (evil-leader/set-key
+    "nb" 'move-beginning-of-line
+    "ne" 'move-end-of-line
+    "nnf" 'narrow-to-defun
+    "nnp" 'narrow-to-page
+    "nnr" 'narrow-to-region
+    "nnw" 'widen)
+#+END_SRC
+**** PROJECT
+#+BEGIN_SRC emacs-lisp
+  (evil-leader/set-key
+    "pb" 'projectile-switch-to-buffer
+    "pc" 'projectile-compile-project
+    "pd" 'projectile-find-dir
+    "pf" 'projectile-find-file
+    "pk" 'projectile-kill-buffers
+    "pp" 'projectile-switch-project
+    "pr" 'projectile-recentf
+    "pt" 'neotree-project-root
+    "psa" 'projectile-ag
+    "psg" 'projectile-grep
+    "psr" 'projectile-ripgrep)
+#+END_SRC
+**** TEXT
+#+BEGIN_SRC emacs-lisp
+  (evil-leader/set-key
+    "xa" 'align-regexp
+    "xdd" 'downcase
+    "xdm" 'downcase-dwim
+    "xdr" 'downcase-region
+    "xdw" 'downcase-word
+    "xuu" 'upcase
+    "xum" 'upcase-dwim
+    "xur" 'upcase-region
+    "xuw" 'upcase-word)
+#+END_SRC
+**** TODOS
+#+BEGIN_SRC emacs-lisp
+  (evil-leader/set-key
+    "tn" 'hl-todo-next
+    "to" 'hl-todo-occur
+    "tp" 'hl-todo-previous)
+#+END_SRC
+**** TOGGLE
+#+BEGIN_SRC emacs-lisp
+  (evil-leader/set-key
+    "Tb" 'beacon-blink
+    "TF" 'toggle-frame-fullscreen
+    "Tg" 'git-gutter-mode
+    "Tl" 'nlinum-mode
+    "Tm" 'menu-bar-mode
+    "Tw" 'whitespace-mode)
+#+END_SRC
+**** WINDOW
+#+BEGIN_SRC emacs-lisp
+  (evil-leader/set-key
+    "wb" 'balance-windows
+    "ww" 'switch-window
+    "wdc" 'delete-window
+    "wdo" 'delete-other-windows
+    "wsh" 'split-and-follow-horizontally
+    "wsv" 'split-and-follow-vertically
+    "wsr" 'split-window-right
+    "wsb" 'split-window-below)
+#+END_SRC
+**** YASNIPPET
+#+BEGIN_SRC emacs-lisp
+  (evil-leader/set-key
+    "yc" 'aya-create
+    "ye" 'aya-expand)
 #+END_SRC
 ** Games
 *** Typing of Emacs 
