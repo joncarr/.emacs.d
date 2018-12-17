@@ -949,8 +949,10 @@ newly created window
       "SPC i" "insert"
       "SPC i l" "lorem ipsum"
       "SPC i u" "UUID"
-      "SPC J" "jump"
+      "SPC j" "jump"
       "SPC m" "major mode"
+      "SPC m i" "imports"
+      "SPC m n" "navigate to"
       "SPC n" "navigate/narrow"
       "SPC n n" "narrow"
       "SPC o" "joncarr"
@@ -989,9 +991,10 @@ newly created window
 
     (which-key-add-major-mode-key-based-replacements 'go-mode
       "SPC m" "go/personal"
-      "SPC j" "go/jump"
-      "SPC i" "go/import"
-      "SPC g" "go/guru")
+      "SPC m n" "go/navigate"
+      "SPC m i" "go/import"
+      "SPC m g" "go/guru"
+      "SPC m p" "go/playground")
 
     (which-key-add-major-mode-key-based-replacements 'rust-mode
       "SPC m" "rust/personal"
@@ -1012,9 +1015,7 @@ newly created window
 #+BEGIN_SRC emacs-lisp
   (evil-leader/set-key
     "SPC" 'helm-M-x
-    "." 'er/expand-region
-    "op" 'helm-mini
-    "ogi" 'go-impl)
+    "." 'er/expand-region)
 
   (global-set-key (kbd "C-c r") 'config-reload)
   (global-set-key (kbd "C-c e") 'config-visit)
@@ -1091,8 +1092,9 @@ newly created window
     "ill" 'lorem-ipsum-insert-list
     "ilp" 'lorem-ipsum-insert-paragraphs
     "ils" 'lorem-ipsum-insert-sentences
-    "iu1" 'uuidgen-1
-    "iu4" 'uuidgen-4)
+    "iu1" 'uuidgen
+    "iu4" 'uuidgen)
+
 #+END_SRC
 **** JUMP
 #+BEGIN_SRC emacs-lisp
@@ -1107,28 +1109,36 @@ newly created window
 ***** Go Mode
 #+BEGIN_SRC emacs-lisp
   (evil-leader/set-key
-    "ja" 'go-goto-arguments
-    "ji" 'go-goto-imports
-    "jf" 'go-goto-function
-    "jn" 'go-goto-function-name
-    "jr" 'go-goto-return-values
-    "jm" 'go-goto-method-receiver
-    "jc" 'go-goto-docstring
-    "jd" 'go-guru-definition
-    "ia" 'go-import-add
-    "ir" 'go-remove-unused-imports
-    "gp" 'go-guru-peers
-    "g<" 'go-guru-callers
-    "g>" 'go-guru-callees
-    "gd" 'go-guru-describe
-    "gp" 'go-guru-pointsto
-    "gf" 'go-guru-freevars
-    "gr" 'go-guru-referrers
-    "ge" 'go-guru-whicherrs
-    "gs" 'go-guru-set-scope
-    "gc" 'go-guru-callstack
-    "gi" 'go-guru-implements
-    "gx" 'go-guru-expand-region)
+    "mt" 'go-add-tags
+    "mr" 'go-rename
+    "mi" 'go-impl
+    "mhd" 'godoc-at-point
+    "mgp" 'go-guru-peers
+    "mgd" 'go-guru-definition
+    "mg<" 'go-guru-callers
+    "mg>" 'go-guru-callees
+    "mg?" 'go-guru-describe
+    "mgp" 'go-guru-pointsto
+    "mgf" 'go-guru-freevars
+    "mgr" 'go-guru-referrers
+    "mge" 'go-guru-whicherrs
+    "mgs" 'go-guru-set-scope
+    "mgc" 'go-guru-callstack
+    "mgi" 'go-guru-implements
+    "mgx" 'go-guru-expand-region
+    "mig" 'go-goto-imports
+    "mia" 'go-import-add
+    "mir" 'go-remove-unused-imports
+    "mna" 'go-goto-arguments
+    "mnf" 'go-goto-function
+    "mnn" 'go-goto-function-name
+    "mnm" 'go-goto-map
+    "mno" 'go-goto-opening-parenthesis
+    "mnr" 'go-goto-return-values
+    "mns" 'go-goto-docstring
+    "mnv" 'go-goto-method-receiver
+    "mpb" 'go-play-buffer
+    "mpr" 'go-play-region)
 #+END_SRC
 **** MARKING
 #+BEGIN_SRC emacs-lisp
@@ -1178,7 +1188,14 @@ newly created window
     "xuu" 'upcase
     "xum" 'upcase-dwim
     "xur" 'upcase-region
-    "xuw" 'upcase-word)
+    "xuw" 'upcase-word
+    "xtc" 'transpose-chars
+    "xtl" 'transpose-lines
+    "xtp" 'transpose-paragraphs
+    "xtr" 'transpose-regions
+    "xts" 'transpose-sentences
+    "xtx" 'transpose-sexps
+    "xtw" 'transpose-words)
 #+END_SRC
 **** TODOS
 #+BEGIN_SRC emacs-lisp
@@ -1214,6 +1231,12 @@ newly created window
   (evil-leader/set-key
     "yc" 'aya-create
     "ye" 'aya-expand)
+#+END_SRC
+**** OWN 
+#+BEGIN_SRC emacs-lisp
+  (evil-leader/set-key
+    "op" 'helm-mini)
+
 #+END_SRC
 ** Games
 *** Typing of Emacs 
