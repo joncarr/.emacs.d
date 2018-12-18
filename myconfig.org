@@ -82,17 +82,19 @@
 #+END_SRC
 *** Use Spaces instead of tabs
 #+BEGIN_SRC emacs-lisp
-  (setq-default indent-tabs-mode nil)
-  (setq tab-stop (number-sequence 4 120 4))
+  (setq tab-stop-list (number-sequence 4 200 4))
 #+END_SRC
 ** Environment
 *** Exec Path From Shell
 #+BEGIN_SRC emacs-lisp
-  ;; (use-package exec-path-from-shell
-  ;;   :ensure t
-  ;;   :config
-  ;;   (exec-path-from-shell-initialize)
-  ;;   (exec-path-from-shell-copy-env "PATH"))
+  (use-package exec-path-from-shell
+    :if (memq system-type '(gnu gnu/linux))
+    :init
+    (customize-set-variable 'exec-path-from-shell-arguments nil)
+    :config
+    (exec-path-from-shell-initialize)
+    (exec-path-from-shell-copy-env "GOPATH")
+    (exec-path-from-shell-copy-env "RUST_SRC_PATH"))
 #+END_SRC
 ** Async 
 *** Use async when possible
@@ -388,12 +390,27 @@
 #+END_SRC
 *** GitGutter
 #+BEGIN_SRC emacs-lisp
-  (use-package git-gutter
+  ;; (use-package git-gutter
+  ;;   :ensure t
+  ;;   :init (global-git-gutter-mode +1)
+  ;;   :config
+  ;;   (git-gutter:linum-setup)
+  ;;   :diminish git-gutter-mode)
+  (use-package git-gutter-fringe
     :ensure t
-    :init (global-git-gutter-mode +1)
+    :if window-system
     :config
-    (git-gutter:linum-setup)
-    :diminish git-gutter-mode)
+    (use-package fringe-helper)
+    (setq git-gutter-fr:side 'right-fringe)
+    (add-hook 'prog-mode-hook 'git-gutter-mode)
+    (add-hook 'focus-in-hook 'git-gutter:update-all-windows)
+    (setq-default fringes-outside-margins t)
+    (fringe-helper-define 'git-gutter-fr:added '(center repeated)
+                          "XXX.....")
+    (fringe-helper-define 'git-gutter-fr:modified '(center repeated)
+                          "XXX.....")
+    (fringe-helper-define 'git-gutter-fr:deleted  '(center repeated)
+                          "XXX....."))
 #+END_SRC
 ** Look and Feel 
 *** General
@@ -577,13 +594,6 @@ newly created window
 #+BEGIN_SRC emacs-lisp
   (setq delete-by-moving-to-trash t)
 #+END_SRC
-*** File specific key bindings
-#+BEGIN_SRC emacs-lisp
-  (bind-key "C-c f z" 'revert-buffer)
-  (bind-key "C-c f f" 'helm-find-files)
-  (bind-key "C-c f r" 'helm-recentf)
-  (bind-key "C-c f b" 'list-bookmarks)
-#+END_SRC
 *** Neotree
 #+BEGIN_SRC emacs-lisp
     (use-package neotree
@@ -712,10 +722,12 @@ newly created window
   (use-package go-mode
     :ensure t
     :init
-    (unbind-key "C-c C-j" go-mode-map))
-  :config
-  (setq gofmt-command "goimports")
-  (add-hook 'before-save-hook 'gofmt-before-save)
+    (unbind-key "C-c C-j" go-mode-map)
+    :config
+    (setq go-tab-width 4)
+    (setq gofmt-command "goimports")
+    (add-hook 'before-save-hook 'gofmt-before-save)
+    (add-to-list 'auto-mode-alist '("\\.go\\'" . go-mode)))
 
   (use-package go-impl
     :ensure t
@@ -725,6 +737,9 @@ newly created window
     :ensure t
     :after go-mode
     :config
+    (if (file-exists-p (concat (projectile-project-root) "go.mod"))
+        (setq go-eldoc-gocode "~/code/go/bin/gocode-gomod")
+      (setq go-eldoc-gocode "~/code/go/bin/gocode"))
     (add-hook 'go-mode-hook 'go-eldoc-setup))
 
   (use-package go-guru
@@ -738,30 +753,28 @@ newly created window
     :config
     (define-key go-mode-map (kbd "C-c m t") #'go-add-tags))
 
-  ;; (use-package lsp-ui
-  ;;   :ensure t)
+  (use-package lsp-ui
+    :ensure t)
 
-  ;; (use-package lsp-mode
-  ;;   :ensure t
-  ;;   :init
-  ;;   (setq lsp-prefer-flymake nil)
-  ;;   :config
-  ;;   (require 'lsp-clients)
-  ;;   (add-hook 'go-mode-hook 'lsp)
-  ;;   (add-hook 'go-mode-hook 'lsp-mode)
-  ;;   (add-hook 'lsp-mode-hook 'lsp-ui-mode)
-  ;;   (lsp--auto-configure))
+  (use-package lsp-mode
+    :ensure t
+    :config
+    (require 'lsp)
+    (require 'lsp-ui)
+    (require 'lsp-clients)
+    (setq lsp-prefer-flymake nil)
+    (add-hook 'go-mode-hook 'lsp))
 
-  ;; (use-package company-lsp
-  ;;   :ensure t
-  ;;   :config
-  ;;   (push 'company-lsp company-backends))
+  (use-package company-lsp
+    :ensure t
+    :config
+    (push 'company-lsp company-backends))
 
-  ;; (use-package lsp-go
-  ;;   :ensure t
-  ;;   :config
-  ;;   (setq lsp-clients-go-server "~/code/go/bin/go-langserver")
-  ;;   (add-hook 'go-mode-hook #'lsp-go-enable))
+  (use-package lsp-go
+    :ensure t
+    :after go-mode
+    :config
+    (setq lsp-clients-go-server "~/code/go/bin/go-langserver"))
 
   (use-package company-go
     :ensure t
@@ -773,39 +786,106 @@ newly created window
           company-go-show-annotation t
           )
     (add-hook 'go-mode-hook (lambda ()
-                              (set(make-local-variable 'company-backends) '(company-go))
+                              (set(make-local-variable 'company-backends) '(company-go company-lsp))
                               (company-mode))))
 #+END_SRC
 *** Rust
 #+BEGIN_SRC emacs-lisp
-  (use-package rust-mode
-    :ensure t
-    :defer t)
+  ;; (use-package rust-mode
+  ;;   :mode "\\.rs\\'"
+  ;;   :init
+  ;;   (setq rust-format-on-save t)
+  ;;   :ensure t
+  ;;   :defer t)
 
+  ;; (use-package lsp-mode
+  ;;   :init
+  ;;   (add-hook 'rust-mode-hook 'lsp-mode)
+  ;;   :config
+  ;;   (use-package lsp-flycheck
+  ;;     :ensure f
+  ;;     :after flycheck))
+
+  ;; (use-package lsp-rust
+  ;;   :ensure t
+  ;;   :after lsp-mode)
+
+  ;; (use-package flycheck-rust
+  ;; :ensure t
+  ;; :defer t
+  ;; :after rust-mode
+  ;; :config (add-hook 'flycheck-mode-hook #'flycheck-rust-setup))
+
+  ;; (use-package lsp-rust
+  ;;   :ensure t
+  ;;   :after rust-mode
+  ;;   :config
+  ;;   (add-hook 'rust-mode-hook 'lsp-mode)
+  ;;   (with-eval-after-load 'lsp-mode
+  ;;     (setq lsp-rust-rls-command '("rustup" "run" "rls"))
+  ;;     (require 'lsp-rust))
+  ;;   (add-hook 'rust-mode-hook #'lsp-rust-enable)
+  ;;   (add-hook 'rust-mode-hook #'flycheck-mode))
+
+
+  ;; (use-package racer
+  ;;   :ensure t
+  ;;   :defer t
+  ;;   :init (add-hook 'rust-mode-hook #'racer-mode)
+  ;;   :config
+  ;;   (setq racer-cmd "~/.cargo/bin/racer")
+  ;;   (setq racer-rust-src-path "~/.multirust/toolchains/stable-x86_64-unknown-linux-gnu/lib/rustlib/src/rust/src/")
+  ;;   (add-hook 'rust-mode-hook #'racer-mode)
+  ;;   (add-hook 'racer-mode-hook #'eldoc-mode)
+  ;;   (add-hook 'racer-mode-hook #'company-mode)
+  ;;   :diminish (racer-mode))
+
+  ;; (use-package cargo
+  ;;   :ensure t
+  ;;   :bind (:map rust-mode-map ("<f5>" . cargo-process-build))
+  ;;   :init (add-hook 'rust-mode-hook #'cargo-minor-mode)
+  ;;   :diminish cargo-minor-mode)
+
+  ;; (use-package toml-mode
+  ;;   :ensure t
+  ;;   :defer t)
+(use-package rust-mode
+  :ensure t
+  :mode "\\.rs\\'"
+  :config
+  (setq rust-format-on-save t)
   (use-package flycheck-rust
     :ensure t
-    :defer t
-    :after rust-mode
-    :config (add-hook 'flycheck-mode-hook #'flycheck-rust-setup))
+    :after flycheck
+    :commands flycheck-rust-setup
+    :init
+    (add-hook 'flycheck-mode-hook #'flycheck-rust-setup)))
 
-  (use-package racer
+(use-package racer
+  :ensure t
+  :commands racer-mode
+  :hook
+  ((rust-mode . racer-mode)
+   (rust-mode . eldoc-mode))
+  :bind (:map rust-mode-map
+	 ("M-." . racer-find-definition))
+  :config
+  (use-package company-racer
     :ensure t
-    :defer t
-    :init (add-hook 'rust-mode-hook #'racer-mode)
     :config
-    (setq racer-cmd "~/.cargo/bin/racer")
-    (setq racer-rust-src-path "~/.multirust/toolchains/stable-x86_64-unknown-linux-gnu/lib/rustlib/src/rust/src/")
-    :diminish (racer-mode))
+    (add-to-list 'company-backends 'company-racer)
+    (setq company-tooltip-align-annotations t)))
 
-  (use-package cargo
-    :ensure t
-    :bind (:map rust-mode-map ("<f5>" . cargo-process-build))
-    :init (add-hook 'rust-mode-hook #'cargo-minor-mode)
-    :diminish cargo-minor-mode)
+(use-package cargo
+  :ensure t
+  :commands cargo-minor-mode
+  :hook (rust-mode . cargo-minor-mode))
 
-  (use-package toml-mode
-    :ensure t
-    :defer t)
+(use-package toml-mode
+  :ensure t
+  :mode (("\\.toml\\'" . toml-mode)
+	 ("/Pipfile\\'" . toml-mode)))
+
 #+END_SRC
 *** C/C++
 #+BEGIN_SRC emacs-lisp
@@ -925,7 +1005,7 @@ newly created window
   (use-package flycheck-kotlin
     :ensure t)
 #+END_SRC
-** Keys and Keybindings
+** Key and Keybindings
 *** which-key
 #+BEGIN_SRC emacs-lisp
   (use-package which-key
@@ -936,6 +1016,11 @@ newly created window
           which-key-sort-order 'which-key-prefix-then-key-order)
     (which-key-add-key-based-replacements
       ;; Prefixes for personal bindings
+      "C-c !" "flycheck"
+      "C-c j" "jump"
+      "C-c &" "yasnippet"
+      "C-c w" "window"
+      "C-c f" "file"
       "SPC b" "buffers"
       "SPC B" "bookmarks"
       "SPC c" "compile"
@@ -956,7 +1041,6 @@ newly created window
       "SPC n" "navigate/narrow"
       "SPC n n" "narrow"
       "SPC o" "joncarr"
-      "SPC o g" "golang"
       "SPC p" "projects"
       "SPC p s" "projects/search"
       "SPC s" "search"
@@ -994,11 +1078,17 @@ newly created window
       "SPC m n" "go/navigate"
       "SPC m i" "go/import"
       "SPC m g" "go/guru"
+      "SPC m h" "go/help"
       "SPC m p" "go/playground")
 
     (which-key-add-major-mode-key-based-replacements 'rust-mode
       "SPC m" "rust/personal"
-      "SPC c" "rust/cargo")
+      "SPC m c" "rust/cargo"
+      "SPC m g" "rust/UNUSED"
+      "SPC m h" "rust/UNUSED"
+      "SPC m n" "rust/UNUSED"
+      "SPC m i" "rust/UNUSED"
+      "SPC m p" "rust/UNUSED")
 
     (which-key-add-major-mode-key-based-replacements 'web-mode
       "C-c C-a" "web/attributes"
@@ -1084,7 +1174,7 @@ newly created window
     "hdk" 'describe-key
     "hdm" 'describe-mode
     "hdp" 'describe-package
-    "hdv" 'describe-variajble)
+    "hdv" 'describe-variable)
 #+END_SRC
 **** INSERT
 #+BEGIN_SRC emacs-lisp
@@ -1099,11 +1189,11 @@ newly created window
 **** JUMP
 #+BEGIN_SRC emacs-lisp
   (evil-leader/set-key
-    "Jw" 'avy-goto-word-1
-    "Jl" 'avy-goto-line
-    "Jp" 'avy-pop-mark
-    "Jc" 'avy-goto-char-2
-    "Js" 'avy-goto-symbol-1)
+    "jw" 'avy-goto-word-1
+    "jl" 'avy-goto-line
+    "jp" 'avy-pop-mark
+    "jc" 'avy-goto-char-2
+    "js" 'avy-goto-symbol-1)
 #+END_SRC
 **** MAJOR MODE SPECIFIC
 ***** Go Mode
@@ -1111,7 +1201,6 @@ newly created window
   (evil-leader/set-key
     "mt" 'go-add-tags
     "mr" 'go-rename
-    "mi" 'go-impl
     "mhd" 'godoc-at-point
     "mgp" 'go-guru-peers
     "mgd" 'go-guru-definition
@@ -1126,19 +1215,44 @@ newly created window
     "mgc" 'go-guru-callstack
     "mgi" 'go-guru-implements
     "mgx" 'go-guru-expand-region
-    "mig" 'go-goto-imports
     "mia" 'go-import-add
+    "mig" 'go-goto-imports
+    "mii" 'go-impl
     "mir" 'go-remove-unused-imports
     "mna" 'go-goto-arguments
     "mnf" 'go-goto-function
     "mnn" 'go-goto-function-name
-    "mnm" 'go-goto-map
     "mno" 'go-goto-opening-parenthesis
     "mnr" 'go-goto-return-values
     "mns" 'go-goto-docstring
-    "mnv" 'go-goto-method-receiver
+    "mnm" 'go-goto-method-receiver
     "mpb" 'go-play-buffer
     "mpr" 'go-play-region)
+#+END_SRC
+***** Rust Mode
+#+BEGIN_SRC emacs-lisp
+  (evil-leader/set-key
+    "mcf" 'cargo-process-fmt
+    "mci" 'cargo-process-init
+    "mca" 'cargo-process-add
+    "mcb" 'cargo-process-build
+    "mcR" 'cargo-process-repeat
+    "mcd" 'cargo-process-doc
+    "mcB" 'cargo-process-bench
+    "mcT" 'cargo-process-current-test
+    "mcc" 'cargo-process-check
+    "mcC" 'cargo-process-clean
+    "mcn" 'cargo-process-new
+    "mco" 'cargo-process-current-file-tests
+    "mcr" 'cargo-process-run
+    "mcs" 'cargo-process-search
+    "mct" 'cargo-process-test
+    "mcu" 'cargo-process-update
+    "mcD" 'cargo-process-doc-open
+    "mcx" 'cargo-process-run-example
+    "mcX" 'cargo-process-rm
+    "mck" 'cargo-process-clippy
+    "mcU" 'cargo-process-upgrade)
 #+END_SRC
 **** MARKING
 #+BEGIN_SRC emacs-lisp
@@ -1229,6 +1343,9 @@ newly created window
 **** YASNIPPET
 #+BEGIN_SRC emacs-lisp
   (evil-leader/set-key
+    "yn" 'yas-new-snippet
+    "yi" 'yas-insert-snippet
+    "yv" 'yas-visit-snippet-file
     "yc" 'aya-create
     "ye" 'aya-expand)
 #+END_SRC
