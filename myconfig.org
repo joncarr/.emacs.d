@@ -33,7 +33,11 @@
 #+END_SRC
 *** Remove Menu Bar
 #+BEGIN_SRC emacs-lisp
-;;(menu-bar-mode -1)
+  (menu-bar-mode -1)
+#+END_SRC
+*** Remove Scroll Bar
+#+BEGIN_SRC emacs-lisp
+  (scroll-bar-mode -1)
 #+END_SRC
 *** Subword
 #+BEGIN_SRC emacs-lisp
@@ -84,10 +88,23 @@
 #+BEGIN_SRC emacs-lisp
   (setq tab-stop-list (number-sequence 4 200 4))
 #+END_SRC
+*** Spell Check
+#+BEGIN_SRC emacs-lisp
+  (flyspell-mode 1)
+  (add-hook 'go-mode 'flyspell-prog-mode)
+  (add-hook 'rust-mode 'flyspell-prog-mode)
+  (add-hook 'javascript-mode 'flyspell-prog-mode)
+  (add-hook 'c-mode 'flyspell-prog-mode)
+  (add-hook 'c++-mode 'flyspell-prog-mode)
+  (use-package helm-flyspell
+    :ensure t)
+
+#+END_SRC
 ** Environment
 *** Exec Path From Shell
 #+BEGIN_SRC emacs-lisp
   (use-package exec-path-from-shell
+    :ensure t
     :if (memq system-type '(gnu gnu/linux))
     :init
     (customize-set-variable 'exec-path-from-shell-arguments nil)
@@ -487,6 +504,14 @@
   (use-package rainbow-delimiters
     :ensure t
     :init (rainbow-delimiters-mode 1))
+#+END_SRC
+*** Golden Ratio
+#+BEGIN_SRC emacs-lisp
+  (use-package golden-ratio
+    :ensure t
+    :config 
+    (golden-ratio-mode 1)
+    :diminish golden-ratio-mode)
 #+END_SRC
 ** Windows and Buffers
 *** Buffers
@@ -1054,6 +1079,7 @@ newly created window
       "SPC x d" "downcase"
       "SPC x u" "upcase"
       "SPC x t" "transpose"
+      "SPC x s" "spellcheck"
       "SPC y" "yasnippet")
 
     (which-key-add-major-mode-key-based-replacements 'markdown-mode
@@ -1195,7 +1221,7 @@ newly created window
     "jc" 'avy-goto-char-2
     "js" 'avy-goto-symbol-1)
 #+END_SRC
-**** MAJOR MODE SPECIFIC
+**** MAJOR MODE 
 ***** Go Mode
 #+BEGIN_SRC emacs-lisp
   (evil-leader/set-key
@@ -1299,6 +1325,10 @@ newly created window
     "xdm" 'downcase-dwim
     "xdr" 'downcase-region
     "xdw" 'downcase-word
+    "xsb" 'flyspell-buffer
+    "xsc" 'helm-flyspell-correct
+    "xsr" 'flyspell-region
+    "xsw" 'flyspell-word
     "xuu" 'upcase
     "xum" 'upcase-dwim
     "xur" 'upcase-region
@@ -1326,6 +1356,7 @@ newly created window
     "Tg" 'git-gutter-mode
     "Tl" 'nlinum-mode
     "Tm" 'menu-bar-mode
+    "Ts" 'scroll-bar-mode
     "Tw" 'whitespace-mode)
 #+END_SRC
 **** WINDOW
