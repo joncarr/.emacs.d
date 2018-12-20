@@ -1030,6 +1030,12 @@ newly created window
   (use-package flycheck-kotlin
     :ensure t)
 #+END_SRC
+*** GDScript
+#+BEGIN_SRC emacs-lisp
+  (use-package gdscript-mode
+    :ensure t
+    :mode "\\.gd\\'")
+#+END_SRC
 ** Key and Keybindings
 *** which-key
 #+BEGIN_SRC emacs-lisp
@@ -1049,6 +1055,7 @@ newly created window
       "SPC b" "buffers"
       "SPC B" "bookmarks"
       "SPC c" "compile"
+      "SPC d" "dired"
       "SPC e" "errors"
       "SPC f" "files"
       "SPC f c" "configuration"
@@ -1157,6 +1164,17 @@ newly created window
     "ck" 'kill-compilation
     "cm" 'helm-make
     "cr" 'recompile)
+#+END_SRC
+**** DIRED
+#+BEGIN_SRC emacs-lisp
+  (evil-leader/set-key
+    "dc" 'dired-do-copy
+    "dd" 'wdired-change-to-dired-mode
+    "dl" 'dired-do-symlink
+    "dp" 'dired-do-chmod
+    "dr" 'dired-do-rename
+    "dx" 'dired-do-delete
+    "dw" 'wdired-change-to-wdired-mode)
 #+END_SRC
 **** ERRORS
 #+BEGIN_SRC emacs-lisp
