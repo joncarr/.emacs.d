@@ -111,7 +111,8 @@
     :config
     (exec-path-from-shell-initialize)
     (exec-path-from-shell-copy-env "GOPATH")
-    (exec-path-from-shell-copy-env "RUST_SRC_PATH"))
+    (exec-path-from-shell-copy-env "RUST_SRC_PATH")
+    (exec-path-from-shell-copy-env "RLS_ROOT"))
 #+END_SRC
 ** Async 
 *** Use async when possible
@@ -341,6 +342,28 @@
     :ensure t
     :defer t)
 #+END_SRC
+*** LSP
+#+BEGIN_SRC emacs-lisp
+  (use-package lsp-mode
+    :ensure t
+    :commands lsp
+    :config
+    (setq lsp-auto-configure t
+	  lsp-auto-require-clients t
+	  lsp-prefer-flymake nil
+	  lsp-hover-enabled t
+	  lsp-signature-enabled t
+	  lsp-enable-completion-at-point t))
+
+  (use-package company-lsp
+    :ensure t
+    :config
+    (push 'company-lsp company-backends))
+
+  (use-package lsp-ui
+    :ensure t)
+
+#+END_SRC
 ** Navigation
 *** Avy
 #+BEGIN_SRC emacs-lisp
@@ -443,6 +466,7 @@
 **** Gruvbox
 #+BEGIN_SRC emacs-lisp
   (use-package gruvbox-theme
+    :disabled t
     :ensure t
     :init
     (load-theme 'gruvbox-dark-hard :no-confirm))
@@ -450,7 +474,7 @@
 **** Gotham
 #+BEGIN_SRC emacs-lisp
   (use-package gotham-theme
-    :disabled t
+    ;; :disabled t				
     :ensure t
     :init
     (load-theme 'gotham :no-confirm))
@@ -497,7 +521,7 @@
 			    (projects . 10)
 			    ))
     (setq dashboard-banner-logo-title "")
-    (setq dashboard-startup-banner "~/.emacs.d/img/dashLogo_gruvBox.png"))
+    (setq dashboard-startup-banner "~/.emacs.d/img/dashLogo_emacs_white.png"))
 #+END_SRC
 *** rainbow-delimiters
 #+BEGIN_SRC emacs-lisp
@@ -718,6 +742,11 @@ newly created window
   (global-set-key (kbd "M-<up>") 'move-line-up)
   (global-set-key (kbd "M-<down>") 'move-line-down)
 #+END_SRC
+** Macros
+#+BEGIN_SRC emacs-lisp
+  (fset 'colonize
+	[escape ?A ?\; escape])
+#+END_SRC
 ** Major Modes and Languages
 *** Org
 **** Org Snippets
@@ -778,22 +807,13 @@ newly created window
     :config
     (define-key go-mode-map (kbd "C-c m t") #'go-add-tags))
 
-  (use-package lsp-ui
-    :ensure t)
-
   (use-package lsp-mode
-    :ensure t
     :config
     (require 'lsp)
     (require 'lsp-ui)
     (require 'lsp-clients)
     (setq lsp-prefer-flymake nil)
     (add-hook 'go-mode-hook 'lsp))
-
-  (use-package company-lsp
-    :ensure t
-    :config
-    (push 'company-lsp company-backends))
 
   (use-package lsp-go
     :ensure t
@@ -816,100 +836,104 @@ newly created window
 #+END_SRC
 *** Rust
 #+BEGIN_SRC emacs-lisp
-  ;; (use-package rust-mode
-  ;;   :mode "\\.rs\\'"
-  ;;   :init
-  ;;   (setq rust-format-on-save t)
-  ;;   :ensure t
-  ;;   :defer t)
+  (use-package lsp-rust
+    :ensure t)
 
-  ;; (use-package lsp-mode
-  ;;   :init
-  ;;   (add-hook 'rust-mode-hook 'lsp-mode)
-  ;;   :config
-  ;;   (use-package lsp-flycheck
-  ;;     :ensure f
-  ;;     :after flycheck))
+  (defun configure-rust/setup-env ()
+    "RLS requires some environment variables to be setup. We use rustup to get the values."
 
-  ;; (use-package lsp-rust
-  ;;   :ensure t
-  ;;   :after lsp-mode)
+    (when (executable-find "rustup")
+      (require 's)
+      (require 'dash)
+      (setq rust-default-toolchain
+	    (car (s-split " " (-first
+			       (lambda (line) (s-match "default" line)) 
+			       (s-lines (shell-command-to-string "rustup toolchain list"))))))
+      ;; tell racer to use the rustup-managed rust-src
+      ;; rustup component add rust-src
+      (setq rust-src-path (concat (getenv "HOME") "/.multirust/toolchains/" rust-default-toolchain "/lib/rustlib/src/rust/src"))
+      (setq rust-bin-path (concat (getenv "HOME") "/.multirust/toolchains/" rust-default-toolchain "/bin"))
+      (setq racer-rust-src-path rust-src-path)
+      (setenv "RUST_SRC_PATH" rust-src-path)
+      (setenv "RUSTC" rust-bin-path)))
 
-  ;; (use-package flycheck-rust
-  ;; :ensure t
-  ;; :defer t
-  ;; :after rust-mode
-  ;; :config (add-hook 'flycheck-mode-hook #'flycheck-rust-setup))
+  (use-package lsp-mode
+    :config
+    (setq lsp-print-io t)
+    ;; (setq lsp-rust-rls-command '("rustup" "run" "nightly" "rls")) 
+    (setenv "RUST_BACKTRACE" "full")
+    (setenv "RUST_LOG" "rls::=debug")
+    ;; Fix problem seems to be caused by upgrading lsp-mode package to v3.
+    (unless (fboundp 'lsp-rust-enable)
+      (defun lsp-rust-enable ()
+	(require 'lsp-clients)
+	;; We don't realy need lsp-rust-rls-command for now, but we will support it
+	(when (boundp 'lsp-rust-rls-command)
+	  (lsp-register-client
+	   (make-lsp-client :new-connection (lsp-stdio-connection lsp-rust-rls-command)
+			    :major-modes '(rust-mode)
+			    :server-id 'rls
+			    :notification-handlers (lsp-ht ("window/progress" 'lsp-clients--rust-window-progress)))))
+	(lsp)))
+    )
 
-  ;; (use-package lsp-rust
-  ;;   :ensure t
-  ;;   :after rust-mode
-  ;;   :config
-  ;;   (add-hook 'rust-mode-hook 'lsp-mode)
-  ;;   (with-eval-after-load 'lsp-mode
-  ;;     (setq lsp-rust-rls-command '("rustup" "run" "rls"))
-  ;;     (require 'lsp-rust))
-  ;;   (add-hook 'rust-mode-hook #'lsp-rust-enable)
-  ;;   (add-hook 'rust-mode-hook #'flycheck-mode))
+  (use-package rust-mode
+    :ensure t
+    :mode "\\.rs\\'"
+    :config
+    (setq rust-format-on-save t)
+    (require 'lsp-mode)
+    (require 'lsp)
+    (require 'lsp-ui)
+    (require 'lsp-clients)
+    (add-hook 'rust-mode-hook 'lsp-mode)
+    (add-hook 'rust-mode-hook #'lsp-rust-enable)
+    (add-hook 'rust-mode-hook #'flycheck-mode)
+    (configure-rust/setup-env)
+    ;; (with-eval-after-load 'lsp-mode
+    ;;   (setq lsp-rust-rls-command '("rustup" "run" "nightly" "rls"))
+    ;;   (require 'lsp-rust))
+    )
 
-
-  ;; (use-package racer
-  ;;   :ensure t
-  ;;   :defer t
-  ;;   :init (add-hook 'rust-mode-hook #'racer-mode)
-  ;;   :config
-  ;;   (setq racer-cmd "~/.cargo/bin/racer")
-  ;;   (setq racer-rust-src-path "~/.multirust/toolchains/stable-x86_64-unknown-linux-gnu/lib/rustlib/src/rust/src/")
-  ;;   (add-hook 'rust-mode-hook #'racer-mode)
-  ;;   (add-hook 'racer-mode-hook #'eldoc-mode)
-  ;;   (add-hook 'racer-mode-hook #'company-mode)
-  ;;   :diminish (racer-mode))
-
-  ;; (use-package cargo
-  ;;   :ensure t
-  ;;   :bind (:map rust-mode-map ("<f5>" . cargo-process-build))
-  ;;   :init (add-hook 'rust-mode-hook #'cargo-minor-mode)
-  ;;   :diminish cargo-minor-mode)
-
-  ;; (use-package toml-mode
-  ;;   :ensure t
-  ;;   :defer t)
-(use-package rust-mode
-  :ensure t
-  :mode "\\.rs\\'"
-  :config
-  (setq rust-format-on-save t)
   (use-package flycheck-rust
     :ensure t
     :after flycheck
     :commands flycheck-rust-setup
     :init
-    (add-hook 'flycheck-mode-hook #'flycheck-rust-setup)))
+    (add-hook 'flycheck-mode-hook #'flycheck-rust-setup))
 
-(use-package racer
-  :ensure t
-  :commands racer-mode
-  :hook
-  ((rust-mode . racer-mode)
-   (rust-mode . eldoc-mode))
-  :bind (:map rust-mode-map
-	 ("M-." . racer-find-definition))
-  :config
+  (use-package racer
+    :ensure t
+    :commands racer-mode
+    :hook
+    ((rust-mode . racer-mode)
+     (racer-mode . eldoc-mode))
+    :bind (:map rust-mode-map
+		("M-." . racer-find-definition))
+    :config
+    (setq racer-complete-insert-argument-placeholders t))
+
   (use-package company-racer
     :ensure t
     :config
     (add-to-list 'company-backends 'company-racer)
-    (setq company-tooltip-align-annotations t)))
+    (add-hook 'racer-mode 'company-mode)
+    (add-hook 'rust-mode-hook (lambda ()
+				(set(make-local-variable 'company-backends) '(company-racer company-lsp))
+				(company-mode)))
 
-(use-package cargo
-  :ensure t
-  :commands cargo-minor-mode
-  :hook (rust-mode . cargo-minor-mode))
+    (setq company-tooltip-align-annotations t))
 
-(use-package toml-mode
-  :ensure t
-  :mode (("\\.toml\\'" . toml-mode)
-	 ("/Pipfile\\'" . toml-mode)))
+
+  (use-package cargo
+    :ensure t
+    :commands cargo-minor-mode
+    :hook (rust-mode . cargo-minor-mode))
+
+  (use-package toml-mode
+    :ensure t
+    :mode (("\\.toml\\'" . toml-mode)
+	   ("/Pipfile\\'" . toml-mode)))
 
 #+END_SRC
 *** C/C++
@@ -1119,7 +1143,7 @@ newly created window
       "SPC m c" "rust/cargo"
       "SPC m g" "rust/UNUSED"
       "SPC m h" "rust/UNUSED"
-      "SPC m n" "rust/UNUSED"
+      "SPC m n" "rust/navigate"
       "SPC m i" "rust/UNUSED"
       "SPC m p" "rust/UNUSED")
 
@@ -1142,6 +1166,12 @@ newly created window
 
   (global-set-key (kbd "C-c r") 'config-reload)
   (global-set-key (kbd "C-c e") 'config-visit)
+
+  ;; Keybindings for Macros
+
+  ;; Colonize, from INSERT mode, Moves to End of line and adds semicolon
+  (global-set-key (kbd "C-<return>") 'colonize)
+
 #+END_SRC
 **** BOOKMARKS
 #+BEGIN_SRC emacs-lisp
@@ -1296,7 +1326,8 @@ newly created window
     "mcx" 'cargo-process-run-example
     "mcX" 'cargo-process-rm
     "mck" 'cargo-process-clippy
-    "mcU" 'cargo-process-upgrade)
+    "mcU" 'cargo-process-upgrade
+    "mnd" 'racer-find-definition)
 #+END_SRC
 **** MARKING
 #+BEGIN_SRC emacs-lisp
