@@ -745,7 +745,7 @@ newly created window
 ** Macros
 #+BEGIN_SRC emacs-lisp
   (fset 'colonize
-	[escape ?A ?\; escape])
+	[escape ?A ?\; escape ?O])
 #+END_SRC
 ** Major Modes and Languages
 *** Org
@@ -792,7 +792,7 @@ newly created window
     :after go-mode
     :config
     (if (file-exists-p (concat (projectile-project-root) "go.mod"))
-        (setq go-eldoc-gocode "~/code/go/bin/gocode-gomod")
+	(setq go-eldoc-gocode "~/code/go/bin/gocode-gomod")
       (setq go-eldoc-gocode "~/code/go/bin/gocode"))
     (add-hook 'go-mode-hook 'go-eldoc-setup))
 
@@ -819,7 +819,8 @@ newly created window
     :ensure t
     :after go-mode
     :config
-    (setq lsp-clients-go-server "~/code/go/bin/go-langserver"))
+    (setq lsp-clients-go-server "~/code/go/bin/go-langserver")
+    (add-hook 'go-mode-hook #'lsp-go-enable))
 
   (use-package company-go
     :ensure t
@@ -828,11 +829,11 @@ newly created window
     (setq company-idle-delay .1)
     (setq company-tooltip-limit 20)
     (setq company-tooltip-align-annotations t
-          company-go-show-annotation t
-          )
+	  company-go-show-annotation t
+	  )
     (add-hook 'go-mode-hook (lambda ()
-                              (set(make-local-variable 'company-backends) '(company-go company-lsp))
-                              (company-mode))))
+			      (set(make-local-variable 'company-backends) '(company-go company-lsp))
+			      (company-mode))))
 #+END_SRC
 *** Rust
 #+BEGIN_SRC emacs-lisp
@@ -860,7 +861,7 @@ newly created window
   (use-package lsp-mode
     :config
     (setq lsp-print-io t)
-    ;; (setq lsp-rust-rls-command '("rustup" "run" "nightly" "rls")) 
+    (setq lsp-rust-rls-command '("rustup" "run" "nightly" "rls")) 
     (setenv "RUST_BACKTRACE" "full")
     (setenv "RUST_LOG" "rls::=debug")
     ;; Fix problem seems to be caused by upgrading lsp-mode package to v3.
@@ -890,9 +891,6 @@ newly created window
     (add-hook 'rust-mode-hook #'lsp-rust-enable)
     (add-hook 'rust-mode-hook #'flycheck-mode)
     (configure-rust/setup-env)
-    ;; (with-eval-after-load 'lsp-mode
-    ;;   (setq lsp-rust-rls-command '("rustup" "run" "nightly" "rls"))
-    ;;   (require 'lsp-rust))
     )
 
   (use-package flycheck-rust
@@ -911,7 +909,7 @@ newly created window
     :bind (:map rust-mode-map
 		("M-." . racer-find-definition))
     :config
-    (setq racer-complete-insert-argument-placeholders t))
+    (setq racer-complete-insert-argument-placeholders 1))
 
   (use-package company-racer
     :ensure t
@@ -1068,7 +1066,8 @@ newly created window
     :init (which-key-mode)
     :config
     (setq which-key-idle-delay 0.3
-          which-key-sort-order 'which-key-prefix-then-key-order)
+          which-key-sort-order 'which-key-prefix-then-key-order
+          which-key-allow-multiple-replacements t)
     (which-key-add-key-based-replacements
       ;; Prefixes for personal bindings
       "C-c !" "flycheck"
@@ -1141,11 +1140,7 @@ newly created window
     (which-key-add-major-mode-key-based-replacements 'rust-mode
       "SPC m" "rust/personal"
       "SPC m c" "rust/cargo"
-      "SPC m g" "rust/UNUSED"
-      "SPC m h" "rust/UNUSED"
-      "SPC m n" "rust/navigate"
-      "SPC m i" "rust/UNUSED"
-      "SPC m p" "rust/UNUSED")
+      "SPC m n" "rust/navigate")
 
     (which-key-add-major-mode-key-based-replacements 'web-mode
       "C-c C-a" "web/attributes"
