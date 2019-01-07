@@ -474,7 +474,7 @@
 **** Gotham
 #+BEGIN_SRC emacs-lisp
   (use-package gotham-theme
-    ;; :disabled t				
+    ;;:disabled t				
     :ensure t
     :init
     (load-theme 'gotham :no-confirm))
@@ -487,6 +487,14 @@
     :config
     (load-theme 'zenburn :no-confirm))
 
+#+END_SRC
+**** Nord
+#+BEGIN_SRC emacs-lisp
+  (use-package nord-theme
+    :disabled t				
+    :ensure t
+    :init
+    (load-theme 'nord :no-confirm))
 #+END_SRC
 *** Modeline
 **** Show Line and Column Numbers on modeline
@@ -745,7 +753,7 @@ newly created window
 ** Macros
 #+BEGIN_SRC emacs-lisp
   (fset 'colonize
-	[escape ?A ?\; escape ?O])
+	[escape ?A ?\; escape ?o])
 #+END_SRC
 ** Major Modes and Languages
 *** Org
@@ -1039,18 +1047,6 @@ newly created window
   (use-package elpy
     :ensure t
     :init (elpy-enable))
-#+END_SRC
-*** Kotlin 
-#+BEGIN_SRC emacs-lisp
-  (use-package kotlin-mode
-    :ensure t
-    :defer t
-    :config
-    (add-to-list 'auto-mode-alist '("\\.kt\\'" . kotlin-mode)))
-
-
-  (use-package flycheck-kotlin
-    :ensure t)
 #+END_SRC
 *** GDScript
 #+BEGIN_SRC emacs-lisp
