@@ -84,7 +84,7 @@
 #+BEGIN_SRC emacs-lisp
   (delete-selection-mode 1)
 #+END_SRC
-*** Use Spaces instead of tabs
+*** Set tab stops
 #+BEGIN_SRC emacs-lisp
   (setq tab-stop-list (number-sequence 4 200 4))
 #+END_SRC
@@ -100,6 +100,10 @@
     :ensure t)
 
 #+END_SRC
+*** Enable Electric Indent
+    #+BEGIN_SRC emacs-lisp
+    (electric-indent-mode 1)
+    #+END_SRC
 ** Environment
 *** Exec Path From Shell
 #+BEGIN_SRC emacs-lisp
@@ -318,10 +322,10 @@
 #+END_SRC
 *** aggressive-indent
 #+BEGIN_SRC emacs-lisp
-  (use-package aggressive-indent
-    :ensure t
-    :init (global-aggressive-indent-mode 1)
-    :diminish aggressive-indent-mode)
+  ;; (use-package aggressive-indent
+  ;;   :ensure t
+  ;;   :init (global-aggressive-indent-mode 1)
+  ;;   :diminish aggressive-indent-mode)
 #+END_SRC
 *** Highlight todos
 #+BEGIN_SRC emacs-lisp
@@ -466,7 +470,7 @@
 **** Gruvbox
 #+BEGIN_SRC emacs-lisp
   (use-package gruvbox-theme
-    :disabled t
+    ;;:disabled t
     :ensure t
     :init
     (load-theme 'gruvbox-dark-hard :no-confirm))
@@ -474,7 +478,7 @@
 **** Gotham
 #+BEGIN_SRC emacs-lisp
   (use-package gotham-theme
-    ;;:disabled t				
+    :disabled t				
     :ensure t
     :init
     (load-theme 'gotham :no-confirm))
@@ -846,7 +850,8 @@ newly created window
 *** Rust
 #+BEGIN_SRC emacs-lisp
   (use-package lsp-rust
-    :ensure t)
+    :ensure t
+    :defer t)
 
   (defun configure-rust/setup-env ()
     "RLS requires some environment variables to be setup. We use rustup to get the values."
@@ -944,23 +949,34 @@ newly created window
 #+END_SRC
 *** C/C++
 #+BEGIN_SRC emacs-lisp
-  (use-package company-irony
-    :ensure t
-    :config
-    (require 'company)
-    (add-to-list 'company-backends 'company-irony))
+  (use-package clang-format
+	:ensure t
+	:defer t
+	:config
+	(setq clang-format-style-option "mozilla"))
+		  
+	(use-package company-irony
+	  :ensure t
+	  :config
+	  (require 'company)
+	  (add-to-list 'company-backends 'company-irony))
 
-  (use-package irony
-    :ensure t
-    :config
-    (add-hook 'c++-mode-hook 'irony-mode)
-    (add-hook 'c-mode-hook 'irony-mode)
-    (add-hook 'irony-mode-hook 'irony-cdb-autosetup-compile-options))
+	(use-package irony
+	  :ensure t
+	  :config
+	  (add-hook 'c++-mode-hook 'irony-mode)
+	  (add-hook 'c-mode-hook 'irony-mode)
+	  (add-hook 'irony-mode-hook 'irony-cdb-autosetup-compile-options))
+	(with-eval-after-load 'company
+	  (add-hook 'c++-mode-hook 'company-mode)
+	  (add-hook 'c-mode-hook 'company-mode)
+	  )
 
-  (with-eval-after-load 'company
-    (add-hook 'c++-mode-hook 'company-mode)
-    (add-hook 'c-mode-hook 'company-mode)
-    )
+	(use-package cmake-mode
+	  :ensure t
+	  :config
+	  (add-to-list 'auto-mode-alist '("\\CMakeLists.txt\\'" . cmake-mode)))
+
 #+END_SRC
 *** Web
 #+BEGIN_SRC emacs-lisp
@@ -1058,95 +1074,103 @@ newly created window
 *** which-key
 #+BEGIN_SRC emacs-lisp
   (use-package which-key
-    :ensure t
-    :init (which-key-mode)
-    :config
-    (setq which-key-idle-delay 0.3
-          which-key-sort-order 'which-key-prefix-then-key-order
-          which-key-allow-multiple-replacements t)
-    (which-key-add-key-based-replacements
-      ;; Prefixes for personal bindings
-      "C-c !" "flycheck"
-      "C-c j" "jump"
-      "C-c &" "yasnippet"
-      "C-c w" "window"
-      "C-c f" "file"
-      "SPC b" "buffers"
-      "SPC B" "bookmarks"
-      "SPC c" "compile"
-      "SPC d" "dired"
-      "SPC e" "errors"
-      "SPC f" "files"
-      "SPC f c" "configuration"
-      "SPC g" "go/guru"
-      "SPC G" "git"
-      "SPC h" "help"
-      "SPC h d" "describe"
-      "SPC i" "insert"
-      "SPC i l" "lorem ipsum"
-      "SPC i u" "UUID"
-      "SPC j" "jump"
-      "SPC m" "major mode"
-      "SPC m i" "imports"
-      "SPC m n" "navigate to"
-      "SPC n" "navigate/narrow"
-      "SPC n n" "narrow"
-      "SPC o" "joncarr"
-      "SPC p" "projects"
-      "SPC p s" "projects/search"
-      "SPC s" "search"
-      "SPC t" "todos"
-      "SPC T" "toggle"
-      "SPC v" "mark"
-      "SPC w" "window"
-      "SPC w d" "delete"
-      "SPC w s" "split"
-      "SPC x" "text"
-      "SPC x d" "downcase"
-      "SPC x u" "upcase"
-      "SPC x t" "transpose"
-      "SPC x s" "spellcheck"
-      "SPC y" "yasnippet")
+	:ensure t
+	:init (which-key-mode)
+	:config
+	(setq which-key-idle-delay 0.3
+		  which-key-sort-order 'which-key-prefix-then-key-order
+		  which-key-allow-multiple-replacements t)
+	(which-key-add-key-based-replacements
+	  ;; Prefixes for personal bindings
+	  "C-c !" "flycheck"
+	  "C-c j" "jump"
+	  "C-c &" "yasnippet"
+	  "C-c w" "window"
+	  "C-c f" "file"
+	  "SPC b" "buffers"
+	  "SPC B" "bookmarks"
+	  "SPC c" "compile"
+	  "SPC d" "dired"
+	  "SPC e" "errors"
+	  "SPC f" "files"
+	  "SPC f c" "configuration"
+	  "SPC g" "go/guru"
+	  "SPC G" "git"
+	  "SPC h" "help"
+	  "SPC h d" "describe"
+	  "SPC i" "insert"
+	  "SPC i l" "lorem ipsum"
+	  "SPC i u" "UUID"
+	  "SPC j" "jump"
+	  "SPC m" "major mode"
+	  "SPC m i" "imports"
+	  "SPC m n" "navigate to"
+	  "SPC n" "navigate/narrow"
+	  "SPC n n" "narrow"
+	  "SPC o" "joncarr"
+	  "SPC p" "projects"
+	  "SPC p s" "projects/search"
+	  "SPC s" "search"
+	  "SPC t" "todos"
+	  "SPC T" "toggle"
+	  "SPC v" "mark"
+	  "SPC w" "window"
+	  "SPC w d" "delete"
+	  "SPC w s" "split"
+	  "SPC x" "text"
+	  "SPC x d" "downcase"
+	  "SPC x u" "upcase"
+	  "SPC x t" "transpose"
+	  "SPC x s" "spellcheck"
+	  "SPC y" "yasnippet")
 
-    (which-key-add-major-mode-key-based-replacements 'markdown-mode
-      "TAB" "markdown/images"
-      "C-a" "markdown/links"
-      "C-c" "markdown/process"
-      "C-s" "markdown/style"
-      "C-t" "markdown/header"
-      "C-x" "markdown/structure"
-      "m" "markdown/personal")
+	(which-key-add-major-mode-key-based-replacements 'markdown-mode
+	  "TAB" "markdown/images"
+	  "C-a" "markdown/links"
+	  "C-c" "markdown/process"
+	  "C-s" "markdown/style"
+	  "C-t" "markdown/header"
+	  "C-x" "markdown/structure"
+	  "m" "markdown/personal")
 
-    (which-key-add-major-mode-key-based-replacements 'emacs-lisp-mode
-      "m" "elisp/personal"
-      "m e" "eval")
+	(which-key-add-major-mode-key-based-replacements 'emacs-lisp-mode
+	  "m" "elisp/personal"
+	  "m e" "eval")
 
-    (which-key-add-major-mode-key-based-replacements 'js2-mode
-      "m" "js/personal"
-      "m r" "refactor")
+	(which-key-add-major-mode-key-based-replacements 'js2-mode
+	  "m" "js/personal"
+	  "m r" "refactor")
 
-    (which-key-add-major-mode-key-based-replacements 'go-mode
-      "SPC m" "go/personal"
-      "SPC m n" "go/navigate"
-      "SPC m i" "go/import"
-      "SPC m g" "go/guru"
-      "SPC m h" "go/help"
-      "SPC m p" "go/playground")
+	(which-key-add-major-mode-key-based-replacements 'go-mode
+	  "SPC m" "go/personal"
+	  "SPC m n" "go/navigate"
+	  "SPC m i" "go/import"
+	  "SPC m g" "go/guru"
+	  "SPC m h" "go/help"
+	  "SPC m p" "go/playground")
 
-    (which-key-add-major-mode-key-based-replacements 'rust-mode
-      "SPC m" "rust/personal"
-      "SPC m c" "rust/cargo"
-      "SPC m n" "rust/navigate")
+	(which-key-add-major-mode-key-based-replacements 'rust-mode
+	  "SPC m" "rust/personal"
+	  "SPC m c" "rust/cargo"
+	  "SPC m n" "rust/navigate")
+  
+	(which-key-add-major-mode-key-based-replacements 'c-mode
+	  "SPC m" "C/personal"
+	  "SPC m f" "C/format")
+	  
+	(which-key-add-major-mode-key-based-replacements 'c++-mode
+	  "SPC m" "C++/personal"
+	  "SPC m f" "C++/format")
 
-    (which-key-add-major-mode-key-based-replacements 'web-mode
-      "C-c C-a" "web/attributes"
-      "C-c C-b" "web/blocks"
-      "C-c C-d" "web/dom"
-      "C-c C-e" "web/element"
-      "C-c C-t" "web/tags")
+	(which-key-add-major-mode-key-based-replacements 'web-mode
+	  "C-c C-a" "web/attributes"
+	  "C-c C-b" "web/blocks"
+	  "C-c C-d" "web/dom"
+	  "C-c C-e" "web/element"
+	  "C-c C-t" "web/tags")
 
-    :diminish which-key-mode
-    )
+	:diminish which-key-mode
+	)
 #+END_SRC
 *** Personal Key Bindings
 **** general
@@ -1263,7 +1287,7 @@ newly created window
 **** MAJOR MODE 
 ***** Go Mode
 #+BEGIN_SRC emacs-lisp
-  (evil-leader/set-key
+  (evil-leader/set-key-for-mode 'go-mode
     "mt" 'go-add-tags
     "mr" 'go-rename
     "mhd" 'godoc-at-point
@@ -1296,7 +1320,7 @@ newly created window
 #+END_SRC
 ***** Rust Mode
 #+BEGIN_SRC emacs-lisp
-  (evil-leader/set-key
+  (evil-leader/set-key-for-mode 'rust-mode
     "mcf" 'cargo-process-fmt
     "mci" 'cargo-process-init
     "mca" 'cargo-process-add
@@ -1319,6 +1343,16 @@ newly created window
     "mck" 'cargo-process-clippy
     "mcU" 'cargo-process-upgrade
     "mnd" 'racer-find-definition)
+#+END_SRC
+***** C-C++ Mode
+#+BEGIN_SRC emacs-lisp
+  (evil-leader/set-key-for-mode 'c-mode
+	"mfb" 'clang-format-buffer
+	"mfr" 'clang-format-region)
+
+  (evil-leader/set-key-for-mode 'c++-mode
+	"mfb" 'clang-format-buffer
+	"mfr" 'clang-format-region)
 #+END_SRC
 **** MARKING
 #+BEGIN_SRC emacs-lisp
