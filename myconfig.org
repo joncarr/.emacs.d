@@ -21,15 +21,15 @@
 #+END_SRC
 *** Remove bell
 #+BEGIN_SRC emacs-lisp
-(setq ring-bell-function 'ignore)
+  (setq ring-bell-function 'ignore)
 #+END_SRC
 *** Conservative Scroll
 #+BEGIN_SRC emacs-lisp
-(setq scroll-conservatively 100)
+  (setq scroll-conservatively 100)
 #+END_SRC
 *** Remove Tool Bar
 #+BEGIN_SRC emacs-lisp
-(tool-bar-mode -1)
+  (tool-bar-mode -1)
 #+END_SRC
 *** Remove Menu Bar
 #+BEGIN_SRC emacs-lisp
@@ -45,15 +45,15 @@
 #+END_SRC
 *** Remove Emacs Start Screen
 #+BEGIN_SRC emacs-lisp
-(setq inhibit-startup-message t)
+  (setq inhibit-startup-message t)
 #+END_SRC
 *** Start in dashboard
 #+BEGIN_SRC emacs-lisp
-(setq initial-buffer-choice (lambda () (get-buffer "*dashboard*")))
+  (setq initial-buffer-choice (lambda () (get-buffer "*dashboard*")))
 #+END_SRC
 *** Don't load outdated byte code
 #+BEGIN_SRC emacs-lisp
-(setq load-prefer-newer t)
+  (setq load-prefer-newer t)
 #+END_SRC
 *** Electric Pair
 #+BEGIN_SRC emacs-lisp
@@ -76,10 +76,6 @@
 #+BEGIN_SRC emacs-lisp
   (defalias 'yes-or-no-p 'y-or-n-p)
 #+END_SRC
-**** Launch Terminal keybinding
-#+BEGIN_SRC emacs-lisp
-  (global-set-key (kbd "<s-return>") 'ansi-term)
-#+END_SRC
 *** Delete selection mode
 #+BEGIN_SRC emacs-lisp
   (delete-selection-mode 1)
@@ -98,7 +94,6 @@
   (add-hook 'c++-mode 'flyspell-prog-mode)
   (use-package helm-flyspell
     :ensure t)
-
 #+END_SRC
 *** Enable Electric Indent
     #+BEGIN_SRC emacs-lisp
@@ -318,7 +313,7 @@
   (use-package expand-region
     :ensure t
     :init (unbind-key "C-c v")
-    :bind ("C-=" . er/expand-region))
+    :bind ("C-c v" . er/expand-region))
 #+END_SRC
 *** aggressive-indent
 #+BEGIN_SRC emacs-lisp
@@ -346,27 +341,11 @@
     :ensure t
     :defer t)
 #+END_SRC
-*** LSP
+*** rainbow-mode
 #+BEGIN_SRC emacs-lisp
-  (use-package lsp-mode
+  (use-package rainbow-mode
     :ensure t
-    :commands lsp
-    :config
-    (setq lsp-auto-configure t
-	  lsp-auto-require-clients t
-	  lsp-prefer-flymake nil
-	  lsp-hover-enabled t
-	  lsp-signature-enabled t
-	  lsp-enable-completion-at-point t))
-
-  (use-package company-lsp
-    :ensure t
-    :config
-    (push 'company-lsp company-backends))
-
-  (use-package lsp-ui
-    :ensure t)
-
+    :defer t)
 #+END_SRC
 ** Navigation
 *** Avy
@@ -380,50 +359,47 @@
 	   ("C-c j s" . avy-goto-symbol-1)))
 #+END_SRC
 *** Line Numbers
-**** nlinum
-#+BEGIN_SRC emacs-lisp
-  (use-package nlinum
-    :ensure t
-    :config
-    (global-nlinum-mode))
-#+END_SRC
-**** Relative line numbers
-#+BEGIN_SRC emacs-lisp
-  (use-package nlinum-relative
-    :ensure t
-    :config
-    (add-hook 'prog-mode-hook 'nlinum-relative-mode))
-#+END_SRC
+    #+BEGIN_SRC emacs-lisp
+      (add-hook 'prog-mode-hook (lambda ()
+				  (display-line-numbers-mode)
+				  (setq display-line-numbers-type 'relative)))
+    #+END_SRC
 *** Evil Mode
 #+BEGIN_SRC emacs-lisp
-  (use-package goto-last-change
-    :ensure t)
+   (use-package goto-last-change
+     :ensure t)
+
+  (use-package evil-commentary
+    :ensure t
+    :config (evil-commentary-mode)
+    :diminish evil-commentary-mode)
 
   (use-package evil
-    :ensure t
-    :init (evil-mode 1)
-    :config
-    (key-chord-define evil-insert-state-map "jj" 'evil-normal-state)
-   ;; (define-key evil-normal-state-map (kbd "") 'evil-avy-goto-word-0) 
-    :diminish evil-mode)
+     :ensure t
+     :init (evil-mode 1)
+     :config (key-chord-define evil-insert-state-map "jj" 'evil-normal-state) 
+     :diminish evil-mode)
 
-  (use-package evil-snipe
-    :ensure t
-    :init
-    (evil-snipe-mode 1)
-    :diminish evil-snipe-local-mode)
+   (use-package evil-snipe
+     :ensure t
+     :init (evil-snipe-mode 1)
+     :diminish evil-snipe-local-mode)
 
-  (use-package evil-surround
-    :ensure t
-    :config
-    (global-evil-surround-mode 1)
-    :diminish evil-snipe-mode)
+   (use-package evil-surround
+     :ensure t
+     :config (global-evil-surround-mode 1)
+     :diminish evil-snipe-mode)
 
-  (use-package evil-leader
+   (use-package evil-leader
+     :ensure t
+     :init (global-evil-leader-mode)
+     :config (evil-leader/set-leader "SPC"))
+
+  (use-package evil-numbers
     :ensure t
-    :init (global-evil-leader-mode)
-    :config
-    (evil-leader/set-leader "SPC"))
+    :bind (
+	   ("C-a" . evil-numbers/inc-at-pt)
+	   ("C-S-a" . evil-numbers/dec-at-pt)))
 #+END_SRC
 ** Version Control
 *** Magit
@@ -533,7 +509,7 @@
 			    (projects . 10)
 			    ))
     (setq dashboard-banner-logo-title "")
-    (setq dashboard-startup-banner "~/.emacs.d/img/dashLogo_emacs_white.png"))
+    (setq dashboard-startup-banner "~/.emacs.d/img/dashLogo.png"))
 #+END_SRC
 *** rainbow-delimiters
 #+BEGIN_SRC emacs-lisp
@@ -787,13 +763,12 @@ newly created window
 
   (use-package go-mode
     :ensure t
-    :init
-    (unbind-key "C-c C-j" go-mode-map)
+    :mode ("\\.go\\'" . go-mode)
     :config
-    (setq go-tab-width 4)
-    (setq gofmt-command "goimports")
-    (add-hook 'before-save-hook 'gofmt-before-save)
-    (add-to-list 'auto-mode-alist '("\\.go\\'" . go-mode)))
+    (setq go-tab-width 4
+	  gofmt-command "goimports")
+    :hook (before-save-hook . gofmt-before-save))
+
 
   (use-package go-impl
     :ensure t
@@ -806,112 +781,42 @@ newly created window
     (if (file-exists-p (concat (projectile-project-root) "go.mod"))
 	(setq go-eldoc-gocode "~/code/go/bin/gocode-gomod")
       (setq go-eldoc-gocode "~/code/go/bin/gocode"))
-    (add-hook 'go-mode-hook 'go-eldoc-setup))
+    :hook (go-mode-hook . go-eldoc-setup))
 
   (use-package go-guru
     :ensure t
     :after go-mode
-    :config
-    (add-hook 'go-mode-hook #'go-guru-hl-identifier-mode))
+    :hook (go-mode-hook . go-guru-hl-identifier-mode))
 
   (use-package go-add-tags
-    :ensure t
-    :config
-    (define-key go-mode-map (kbd "C-c m t") #'go-add-tags))
-
-  (use-package lsp-mode
-    :config
-    (require 'lsp)
-    (require 'lsp-ui)
-    (require 'lsp-clients)
-    (setq lsp-prefer-flymake nil)
-    (add-hook 'go-mode-hook 'lsp))
-
-  (use-package lsp-go
-    :ensure t
-    :after go-mode
-    :config
-    (setq lsp-clients-go-server "~/code/go/bin/go-langserver")
-    (add-hook 'go-mode-hook #'lsp-go-enable))
+    :ensure t)
 
   (use-package company-go
     :ensure t
     :after go-mode
     :config
-    (setq company-idle-delay .1)
-    (setq company-tooltip-limit 20)
-    (setq company-tooltip-align-annotations t
-	  company-go-show-annotation t
-	  )
+    (setq company-idle-delay .1
+	  company-tooltip-limit 20
+	  company-tooltip-align-annotations 1
+	  company-go-insert-arguments 1
+	  company-go-show-annotation t)
     (add-hook 'go-mode-hook (lambda ()
-			      (set(make-local-variable 'company-backends) '(company-go company-lsp))
-			      (company-mode))))
+			      (set(make-local-variable 'company-backends) '(company-go)))))
 #+END_SRC
 *** Rust
 #+BEGIN_SRC emacs-lisp
-  (use-package lsp-rust
-    :ensure t
-    :defer t)
-
-  (defun configure-rust/setup-env ()
-    "RLS requires some environment variables to be setup. We use rustup to get the values."
-
-    (when (executable-find "rustup")
-      (require 's)
-      (require 'dash)
-      (setq rust-default-toolchain
-	    (car (s-split " " (-first
-			       (lambda (line) (s-match "default" line)) 
-			       (s-lines (shell-command-to-string "rustup toolchain list"))))))
-      ;; tell racer to use the rustup-managed rust-src
-      ;; rustup component add rust-src
-      (setq rust-src-path (concat (getenv "HOME") "/.multirust/toolchains/" rust-default-toolchain "/lib/rustlib/src/rust/src"))
-      (setq rust-bin-path (concat (getenv "HOME") "/.multirust/toolchains/" rust-default-toolchain "/bin"))
-      (setq racer-rust-src-path rust-src-path)
-      (setenv "RUST_SRC_PATH" rust-src-path)
-      (setenv "RUSTC" rust-bin-path)))
-
-  (use-package lsp-mode
-    :config
-    (setq lsp-print-io t)
-    (setq lsp-rust-rls-command '("rustup" "run" "nightly" "rls")) 
-    (setenv "RUST_BACKTRACE" "full")
-    (setenv "RUST_LOG" "rls::=debug")
-    ;; Fix problem seems to be caused by upgrading lsp-mode package to v3.
-    (unless (fboundp 'lsp-rust-enable)
-      (defun lsp-rust-enable ()
-	(require 'lsp-clients)
-	;; We don't realy need lsp-rust-rls-command for now, but we will support it
-	(when (boundp 'lsp-rust-rls-command)
-	  (lsp-register-client
-	   (make-lsp-client :new-connection (lsp-stdio-connection lsp-rust-rls-command)
-			    :major-modes '(rust-mode)
-			    :server-id 'rls
-			    :notification-handlers (lsp-ht ("window/progress" 'lsp-clients--rust-window-progress)))))
-	(lsp)))
-    )
-
   (use-package rust-mode
     :ensure t
-    :mode "\\.rs\\'"
+    :mode ("\\.rs\\'" . rust-mode)
     :config
     (setq rust-format-on-save t)
-    (require 'lsp-mode)
-    (require 'lsp)
-    (require 'lsp-ui)
-    (require 'lsp-clients)
-    (add-hook 'rust-mode-hook 'lsp-mode)
-    (add-hook 'rust-mode-hook #'lsp-rust-enable)
-    (add-hook 'rust-mode-hook #'flycheck-mode)
-    (configure-rust/setup-env)
-    )
+    :hook (rust-mode-hook . flycheck-mode))
 
   (use-package flycheck-rust
     :ensure t
     :after flycheck
     :commands flycheck-rust-setup
-    :init
-    (add-hook 'flycheck-mode-hook #'flycheck-rust-setup))
+    :hook (flycheck-mode-hook . flycheck-rust-setup))
 
   (use-package racer
     :ensure t
@@ -927,13 +832,10 @@ newly created window
   (use-package company-racer
     :ensure t
     :config
+    (setq company-tooltip-align-annotations t)
     (add-to-list 'company-backends 'company-racer)
-    (add-hook 'racer-mode 'company-mode)
-    (add-hook 'rust-mode-hook (lambda ()
-				(set(make-local-variable 'company-backends) '(company-racer company-lsp))
-				(company-mode)))
-
-    (setq company-tooltip-align-annotations t))
+    :hook ((racer-mode . company-mode)
+	   (rust-mode-hook . company-racer)))
 
 
   (use-package cargo
@@ -950,33 +852,45 @@ newly created window
 *** C/C++
 #+BEGIN_SRC emacs-lisp
   (use-package clang-format
-	:ensure t
-	:defer t
-	:config
-	(setq clang-format-style-option "mozilla"))
-		  
-	(use-package company-irony
-	  :ensure t
-	  :config
-	  (require 'company)
-	  (add-to-list 'company-backends 'company-irony))
+    :ensure t
+    :defer t
+    :config
+    (setq clang-format-style-option "mozilla"))
 
-	(use-package irony
-	  :ensure t
-	  :config
-	  (add-hook 'c++-mode-hook 'irony-mode)
-	  (add-hook 'c-mode-hook 'irony-mode)
-	  (add-hook 'irony-mode-hook 'irony-cdb-autosetup-compile-options))
-	(with-eval-after-load 'company
-	  (add-hook 'c++-mode-hook 'company-mode)
-	  (add-hook 'c-mode-hook 'company-mode)
-	  )
+  (use-package company-irony
+    :ensure t
+    :config
+    (add-to-list 'company-backends 'company-irony))
 
-	(use-package cmake-mode
-	  :ensure t
-	  :config
-	  (add-to-list 'auto-mode-alist '("\\CMakeLists.txt\\'" . cmake-mode)))
+  (use-package irony
+    :ensure t
+    :hook (
+	   (c++-mode-hook . irony-mode)
+	   (c-mode-hook . irony-mode)
+	   (irony-mode-hook . irony-cdb-autosetup-compile-options)))
+  (with-eval-after-load 'company
+    (add-hook 'c++-mode-hook 'company-mode)
+    (add-hook 'c-mode-hook 'company-mode))
 
+  (use-package cmake-mode
+    :ensure t
+    :config
+    (add-to-list 'auto-mode-alist '("\\CMakeLists.txt\\'" . cmake-mode)))
+
+  (use-package ggtags
+    :ensure t
+    :config
+    (add-hook 'c-mode-common-hook
+	    (lambda ()
+	      (when (derived-mode-p 'c-mode 'c++-mode 'java-mode)
+		(ggtags-mode 1)))))
+
+  (use-package helm-gtags
+    :ensure t
+    :hook (
+	   (c-mode . helm-gtags-mode)
+	   (c++-mode . helm-gtags-mode)
+	   (java-mode . helm-gtags-mode)))
 #+END_SRC
 *** Web
 #+BEGIN_SRC emacs-lisp
@@ -1094,10 +1008,9 @@ newly created window
 	  "SPC e" "errors"
 	  "SPC f" "files"
 	  "SPC f c" "configuration"
-	  "SPC g" "go/guru"
+	  "SPC g" "goto"
 	  "SPC G" "git"
 	  "SPC h" "help"
-	  "SPC h d" "describe"
 	  "SPC i" "insert"
 	  "SPC i l" "lorem ipsum"
 	  "SPC i u" "UUID"
@@ -1153,14 +1066,13 @@ newly created window
 	  "SPC m" "rust/personal"
 	  "SPC m c" "rust/cargo"
 	  "SPC m n" "rust/navigate")
-  
+
 	(which-key-add-major-mode-key-based-replacements 'c-mode
 	  "SPC m" "C/personal"
 	  "SPC m f" "C/format")
-	  
+
 	(which-key-add-major-mode-key-based-replacements 'c++-mode
-	  "SPC m" "C++/personal"
-	  "SPC m f" "C++/format")
+	  "SPC m" "C++/personal")
 
 	(which-key-add-major-mode-key-based-replacements 'web-mode
 	  "C-c C-a" "web/attributes"
@@ -1233,12 +1145,18 @@ newly created window
 **** FILES
 #+BEGIN_SRC emacs-lisp
   (evil-leader/set-key
-    "ff" 'helm-find-files
+    "f." 'helm-find-files
     "fr" 'helm-recentf
     "fs" 'sudo-edit
     "ft" 'neotree-toggle
     "fce" 'config-visit 
     "fcr" 'config-reload)
+#+END_SRC
+**** GOTO
+#+BEGIN_SRC emacs-lisp
+  (evil-leader/set-key
+    "gb" 'move-beginning-of-line
+    "ge" 'move-end-of-line)
 #+END_SRC
 **** GIT
 #+BEGIN_SRC emacs-lisp
@@ -1257,13 +1175,13 @@ newly created window
 **** HELP
 #+BEGIN_SRC emacs-lisp
   (evil-leader/set-key
-    "hdc" 'describe-char
-    "hdf" 'describe-function
-    "hdF" 'describe-face
-    "hdk" 'describe-key
-    "hdm" 'describe-mode
-    "hdp" 'describe-package
-    "hdv" 'describe-variable)
+    "hc" 'describe-char
+    "hf" 'describe-function
+    "hF" 'describe-face
+    "hk" 'describe-key
+    "hm" 'describe-mode
+    "hp" 'describe-package
+    "hv" 'describe-variable)
 #+END_SRC
 **** INSERT
 #+BEGIN_SRC emacs-lisp
@@ -1369,12 +1287,10 @@ newly created window
 **** NAVIGATE/NARROW
 #+BEGIN_SRC emacs-lisp
   (evil-leader/set-key
-    "nb" 'move-beginning-of-line
-    "ne" 'move-end-of-line
-    "nnf" 'narrow-to-defun
-    "nnp" 'narrow-to-page
-    "nnr" 'narrow-to-region
-    "nnw" 'widen)
+    "nf" 'narrow-to-defun
+    "np" 'narrow-to-page
+    "nr" 'narrow-to-region
+    "nw" 'widen)
 #+END_SRC
 **** PROJECT
 #+BEGIN_SRC emacs-lisp
@@ -1428,7 +1344,7 @@ newly created window
     "Tb" 'beacon-blink
     "TF" 'toggle-frame-fullscreen
     "Tg" 'git-gutter-mode
-    "Tl" 'nlinum-mode
+    "Tr" 'rainbow-mode
     "Tm" 'menu-bar-mode
     "Ts" 'scroll-bar-mode
     "Tw" 'whitespace-mode)
