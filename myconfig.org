@@ -99,6 +99,10 @@
     #+BEGIN_SRC emacs-lisp
     (electric-indent-mode 1)
     #+END_SRC
+*** TAB behavior
+#+BEGIN_SRC emacs-lisp
+  (setq-default tab-always-indent nil)
+#+END_SRC
 ** Environment
 *** Exec Path From Shell
 #+BEGIN_SRC emacs-lisp
@@ -121,6 +125,12 @@
     :init (dired-async-mode 1))
 #+END_SRC
 ** Packages
+*** RealGud Debugger
+#+BEGIN_SRC emacs-lisp
+  (use-package realgud
+    :ensure t
+    :defer t)
+#+END_SRC
 *** Fix Regex
 #+BEGIN_SRC emacs-lisp
   (use-package pcre2el
@@ -1089,10 +1099,17 @@ newly created window
 #+BEGIN_SRC emacs-lisp
   (evil-leader/set-key
     "SPC" 'helm-M-x
-    "." 'er/expand-region)
+    "." 'er/expand-region
+    ";" 'shell-command)
 
   (global-set-key (kbd "C-c r") 'config-reload)
   (global-set-key (kbd "C-c e") 'config-visit)
+
+  ;; Allows me to use the tab key as it was designed
+  (define-key evil-insert-state-map (kbd "C-<tab>") 'tab-to-tab-stop)
+
+  ;; Useful for jumping out of brackets, quotes, etc...
+  (define-key evil-insert-state-map (kbd "C-e") 'move-end-of-line)
 
   ;; Keybindings for Macros
 
@@ -1284,7 +1301,7 @@ newly created window
     "vf" 'er/mark-defun
     "vc" 'er/mark-comment)
 #+END_SRC
-**** NAVIGATE/NARROW
+**** NARROW
 #+BEGIN_SRC emacs-lisp
   (evil-leader/set-key
     "nf" 'narrow-to-defun
@@ -1311,16 +1328,14 @@ newly created window
 #+BEGIN_SRC emacs-lisp
   (evil-leader/set-key
     "xa" 'align-regexp
-    "xdd" 'downcase
-    "xdm" 'downcase-dwim
+    "xdd" 'downcase-dwim
     "xdr" 'downcase-region
     "xdw" 'downcase-word
     "xsb" 'flyspell-buffer
     "xsc" 'helm-flyspell-correct
     "xsr" 'flyspell-region
     "xsw" 'flyspell-word
-    "xuu" 'upcase
-    "xum" 'upcase-dwim
+    "xuu" 'upcase-dwim
     "xur" 'upcase-region
     "xuw" 'upcase-word
     "xtc" 'transpose-chars
@@ -1357,9 +1372,7 @@ newly created window
     "wdc" 'delete-window
     "wdo" 'delete-other-windows
     "wsh" 'split-and-follow-horizontally
-    "wsv" 'split-and-follow-vertically
-    "wsr" 'split-window-right
-    "wsb" 'split-window-below)
+    "wsv" 'split-and-follow-vertically)
 #+END_SRC
 **** YASNIPPET
 #+BEGIN_SRC emacs-lisp
