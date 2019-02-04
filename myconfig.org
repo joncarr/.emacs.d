@@ -846,16 +846,20 @@ newly created window
 #+END_SRC
 *** Rust
 #+BEGIN_SRC emacs-lisp
-   (use-package rust-mode
-    :ensure t
-    :mode ("\\.rs\\'" . rust-mode)
-    :config
-    (setq rust-format-on-save t)
-    :hook (rust-mode-hook . flycheck-mode))
+   ;; (use-package rust-mode
+   ;;  :ensure t
+   ;;  :mode ("\\.rs\\'" . rust-mode)
+   ;;  :config
+   ;;  (setq rust-format-on-save t)
+   ;;  :hook (rust-mode-hook . flycheck-mode))
 
   (use-package rustic
     :ensure t
+    :commands rustic-mode
     :config
+    (add-hook 'after-init-hook
+      (function (lambda()
+          (add-to-list 'auto-mode-alist '("\\.rs\\'" . rustic-mode)))))
     (setq rustic-rls-pkg 'eglot))
 
 
@@ -874,7 +878,7 @@ newly created window
     (setq racer-complete-insert-argument-placeholders 1
 	  racer-cmd "~/.cargo/bin/racer"
 	  racer-rust-src-path (substitute-env-vars "RUST_SRC_PATH"))
-    (add-hook 'rust-mode-hook  #'racer-mode)
+    (add-hook 'rustic-mode-hook  #'racer-mode)
     (add-hook 'racer-mode-hook #'eldoc-mode)
     (add-hook 'racer-mode-hook #'company-mode))
 
@@ -888,7 +892,7 @@ newly created window
   (use-package cargo
     :ensure t
     :commands cargo-minor-mode
-    :config (add-hook rust-mode-hook 'cargo-minor-mode))
+    :config (add-hook rustic-mode-hook 'cargo-minor-mode))
 
   (use-package toml-mode
     :ensure t
