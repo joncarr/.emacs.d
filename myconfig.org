@@ -86,6 +86,9 @@
 #+END_SRC
 *** Spell Check
 #+BEGIN_SRC emacs-lisp
+  (setq ispell-program-name "/usr/bin/aspell")
+  (setq ispell-dictionary "english")
+   (setq ispell-alternate-dictionary (file-truename "~/.emacs.d/misc/english-words.txt"))
   (flyspell-mode 1)
   (add-hook 'go-mode 'flyspell-prog-mode)
   (add-hook 'rust-mode 'flyspell-prog-mode)
@@ -125,6 +128,19 @@
     :init (dired-async-mode 1))
 #+END_SRC
 ** Packages
+*** eglot
+#+BEGIN_SRC emacs-lisp
+  (use-package eglot
+    :ensure t)
+#+END_SRC
+*** fasd
+#+BEGIN_SRC emacs-lisp
+  (use-package fasd
+    :ensure t
+    :config 
+    (setq fasd-enable-initial-prompt nil)
+    (global-fasd-mode 1))
+#+END_SRC
 *** RealGud Debugger
 #+BEGIN_SRC emacs-lisp
   (use-package realgud
@@ -175,6 +191,10 @@
     :ensure t
     :config
     (setq helm-make-fuzzy-matching 1))
+
+  (use-package helm-ispell
+    :ensure t
+    :defer t)
 #+END_SRC
 *** Company
 #+BEGIN_SRC emacs-lisp
@@ -386,8 +406,9 @@
 
   (use-package evil
      :ensure t
-     :init (evil-mode 1)
-     :config (key-chord-define evil-insert-state-map "jj" 'evil-normal-state) 
+     :config
+     (add-hook 'prog-mode-hook 'evil-mode)
+     (key-chord-define evil-insert-state-map "jj" 'evil-normal-state)
      :diminish evil-mode)
 
    (use-package evil-snipe
@@ -410,6 +431,18 @@
     :bind (
 	   ("C-a" . evil-numbers/inc-at-pt)
 	   ("C-S-a" . evil-numbers/dec-at-pt)))
+
+  (use-package evil-org
+    :ensure t
+    :after org
+    :config
+    (add-hook 'org-mode-hook 'evil-org-mode)
+    (add-hook 'evil-org-mode-hook
+	      (lambda ()
+		(evil-org-set-key-theme)))
+    (require 'evil-org-agenda)
+    (evil-org-agenda-set-keys)
+  )
 #+END_SRC
 ** Version Control
 *** Magit
@@ -420,27 +453,11 @@
 #+END_SRC
 *** GitGutter
 #+BEGIN_SRC emacs-lisp
-  ;; (use-package git-gutter
-  ;;   :ensure t
-  ;;   :init (global-git-gutter-mode +1)
-  ;;   :config
-  ;;   (git-gutter:linum-setup)
-  ;;   :diminish git-gutter-mode)
-  (use-package git-gutter-fringe
+  (use-package git-gutter
     :ensure t
-    :if window-system
     :config
-    (use-package fringe-helper)
-    (setq git-gutter-fr:side 'right-fringe)
     (add-hook 'prog-mode-hook 'git-gutter-mode)
-    (add-hook 'focus-in-hook 'git-gutter:update-all-windows)
-    (setq-default fringes-outside-margins t)
-    (fringe-helper-define 'git-gutter-fr:added '(center repeated)
-                          "XXX.....")
-    (fringe-helper-define 'git-gutter-fr:modified '(center repeated)
-                          "XXX.....")
-    (fringe-helper-define 'git-gutter-fr:deleted  '(center repeated)
-                          "XXX....."))
+    :diminish git-gutter-mode)
 #+END_SRC
 ** Look and Feel 
 *** General
@@ -456,7 +473,7 @@
 **** Gruvbox
 #+BEGIN_SRC emacs-lisp
   (use-package gruvbox-theme
-    ;;:disabled t
+    :disabled t
     :ensure t
     :init
     (load-theme 'gruvbox-dark-hard :no-confirm))
@@ -464,7 +481,7 @@
 **** Gotham
 #+BEGIN_SRC emacs-lisp
   (use-package gotham-theme
-    :disabled t				
+    ;; :disabled t				
     :ensure t
     :init
     (load-theme 'gotham :no-confirm))
@@ -476,7 +493,6 @@
     :ensure t
     :config
     (load-theme 'zenburn :no-confirm))
-
 #+END_SRC
 **** Nord
 #+BEGIN_SRC emacs-lisp
@@ -485,6 +501,14 @@
     :ensure t
     :init
     (load-theme 'nord :no-confirm))
+#+END_SRC
+**** Foggy Night
+#+BEGIN_SRC emacs-lisp
+  (use-package foggy-night-theme
+    :disabled t
+    :ensure t
+    :init
+    (load-theme 'foggy-night :no-confirm))
 #+END_SRC
 *** Modeline
 **** Show Line and Column Numbers on modeline
@@ -519,7 +543,7 @@
 			    (projects . 10)
 			    ))
     (setq dashboard-banner-logo-title "")
-    (setq dashboard-startup-banner "~/.emacs.d/img/dashLogo.png"))
+    (setq dashboard-startup-banner "~/.emacs.d/img/dashLogoBW.png"))
 #+END_SRC
 *** rainbow-delimiters
 #+BEGIN_SRC emacs-lisp
@@ -740,6 +764,13 @@ newly created window
   (global-set-key (kbd "M-<up>") 'move-line-up)
   (global-set-key (kbd "M-<down>") 'move-line-down)
 #+END_SRC
+*** Refresh Flymake (used in rustic-mode)
+#+BEGIN_SRC emacs-lisp
+  (defun flymake-clear ()
+    (interactive)
+    (flymake-mode-off)
+    (flymake-mode-on))
+#+END_SRC
 ** Macros
 #+BEGIN_SRC emacs-lisp
   (fset 'colonize
@@ -777,7 +808,7 @@ newly created window
     :config
     (setq go-tab-width 4
 	  gofmt-command "goimports")
-    :hook (before-save-hook . gofmt-before-save))
+    (add-hook 'before-save-hook 'gofmt-before-save))
 
 
   (use-package go-impl
@@ -791,12 +822,12 @@ newly created window
     (if (file-exists-p (concat (projectile-project-root) "go.mod"))
 	(setq go-eldoc-gocode "~/code/go/bin/gocode-gomod")
       (setq go-eldoc-gocode "~/code/go/bin/gocode"))
-    :hook (go-mode-hook . go-eldoc-setup))
+    :hook (go-mode . go-eldoc-setup))
 
   (use-package go-guru
     :ensure t
     :after go-mode
-    :hook (go-mode-hook . go-guru-hl-identifier-mode))
+    :hook (go-mode . go-guru-hl-identifier-mode))
 
   (use-package go-add-tags
     :ensure t)
@@ -815,48 +846,54 @@ newly created window
 #+END_SRC
 *** Rust
 #+BEGIN_SRC emacs-lisp
-  (use-package rust-mode
+   (use-package rust-mode
     :ensure t
     :mode ("\\.rs\\'" . rust-mode)
     :config
     (setq rust-format-on-save t)
     :hook (rust-mode-hook . flycheck-mode))
 
+  (use-package rustic
+    :ensure t
+    :config
+    (setq rustic-rls-pkg 'eglot))
+
+
   (use-package flycheck-rust
     :ensure t
     :after flycheck
     :commands flycheck-rust-setup
-    :hook (flycheck-mode-hook . flycheck-rust-setup))
+    :config
+    (add-hook 'flycheck-mode-hook #'flycheck-rust-setup)
+    (setq flycheck-rust-cargo-executable (getenv "RUST_BIN")))
 
   (use-package racer
     :ensure t
     :commands racer-mode
-    :hook
-    ((rust-mode . racer-mode)
-     (racer-mode . eldoc-mode))
-    :bind (:map rust-mode-map
-		("M-." . racer-find-definition))
     :config
-    (setq racer-complete-insert-argument-placeholders 1))
+    (setq racer-complete-insert-argument-placeholders 1
+	  racer-cmd "~/.cargo/bin/racer"
+	  racer-rust-src-path (substitute-env-vars "RUST_SRC_PATH"))
+    (add-hook 'rust-mode-hook  #'racer-mode)
+    (add-hook 'racer-mode-hook #'eldoc-mode)
+    (add-hook 'racer-mode-hook #'company-mode))
 
   (use-package company-racer
     :ensure t
     :config
     (setq company-tooltip-align-annotations t)
-    (add-to-list 'company-backends 'company-racer)
-    :hook ((racer-mode . company-mode)
-	   (rust-mode-hook . company-racer)))
-
+    (with-eval-after-load 'company
+    (add-to-list 'company-backends 'company-lsp)))
 
   (use-package cargo
     :ensure t
     :commands cargo-minor-mode
-    :hook (rust-mode . cargo-minor-mode))
+    :config (add-hook rust-mode-hook 'cargo-minor-mode))
 
   (use-package toml-mode
     :ensure t
     :mode (("\\.toml\\'" . toml-mode)
-	   ("/Pipfile\\'" . toml-mode)))
+	   ("\\Pipfile\\'" . toml-mode)))
 
 #+END_SRC
 *** C/C++
@@ -865,7 +902,7 @@ newly created window
     :ensure t
     :defer t
     :config
-    (setq clang-format-style-option "mozilla"))
+    (setq clang-format-style-option "stroustrup"))
 
   (use-package company-irony
     :ensure t
@@ -994,6 +1031,14 @@ newly created window
     :ensure t
     :mode "\\.gd\\'")
 #+END_SRC
+*** PDF
+#+BEGIN_SRC emacs-lisp
+  (use-package pdf-tools
+    :ensure t
+    :mode ("\\.pdf\\'" . pdf-view-mode)
+    :init (pdf-loader-install)
+    :hook (pdf-view-mode . evil-mode))
+#+END_SRC
 ** Key and Keybindings
 *** which-key
 #+BEGIN_SRC emacs-lisp
@@ -1026,6 +1071,7 @@ newly created window
 	  "SPC i u" "UUID"
 	  "SPC j" "jump"
 	  "SPC m" "major mode"
+	  "SPC m c" "cargo"
 	  "SPC m i" "imports"
 	  "SPC m n" "navigate to"
 	  "SPC n" "navigate/narrow"
@@ -1077,6 +1123,11 @@ newly created window
 	  "SPC m c" "rust/cargo"
 	  "SPC m n" "rust/navigate")
 
+	  (which-key-add-major-mode-key-based-replacements 'rustic-mode
+	  "SPC m" "rust/personal"
+	  "SPC m c" "rust/cargo"
+	  "SPC m n" "rust/navigate")
+
 	(which-key-add-major-mode-key-based-replacements 'c-mode
 	  "SPC m" "C/personal"
 	  "SPC m f" "C/format")
@@ -1100,6 +1151,7 @@ newly created window
   (evil-leader/set-key
     "SPC" 'helm-M-x
     "." 'er/expand-region
+    "," 'fasd-find-file
     ";" 'shell-command)
 
   (global-set-key (kbd "C-c r") 'config-reload)
@@ -1110,7 +1162,7 @@ newly created window
 
   ;; Useful for jumping out of brackets, quotes, etc...
   (define-key evil-insert-state-map (kbd "C-e") 'move-end-of-line)
-
+  
   ;; Keybindings for Macros
 
   ;; Colonize, from INSERT mode, Moves to End of line and adds semicolon
@@ -1192,6 +1244,7 @@ newly created window
 **** HELP
 #+BEGIN_SRC emacs-lisp
   (evil-leader/set-key
+    "hb" 'describe-bindings
     "hc" 'describe-char
     "hf" 'describe-function
     "hF" 'describe-face
@@ -1255,7 +1308,7 @@ newly created window
 #+END_SRC
 ***** Rust Mode
 #+BEGIN_SRC emacs-lisp
-  (evil-leader/set-key-for-mode 'rust-mode
+  (evil-leader/set-key-for-mode 'rustic-mode 
     "mcf" 'cargo-process-fmt
     "mci" 'cargo-process-init
     "mca" 'cargo-process-add
@@ -1277,7 +1330,33 @@ newly created window
     "mcX" 'cargo-process-rm
     "mck" 'cargo-process-clippy
     "mcU" 'cargo-process-upgrade
-    "mnd" 'racer-find-definition)
+    "mnd" 'racer-find-definition
+    "ef"  'flymake-clear)
+
+    (evil-leader/set-key-for-mode 'rust-mode 
+    "mcf" 'cargo-process-fmt
+    "mci" 'cargo-process-init
+    "mca" 'cargo-process-add
+    "mcb" 'cargo-process-build
+    "mcR" 'cargo-process-repeat
+    "mcd" 'cargo-process-doc
+    "mcB" 'cargo-process-bench
+    "mcT" 'cargo-process-current-test
+    "mcc" 'cargo-process-check
+    "mcC" 'cargo-process-clean
+    "mcn" 'cargo-process-new
+    "mco" 'cargo-process-current-file-tests
+    "mcr" 'cargo-process-run
+    "mcs" 'cargo-process-search
+    "mct" 'cargo-process-test
+    "mcu" 'cargo-process-update
+    "mcD" 'cargo-process-doc-open
+    "mcx" 'cargo-process-run-example
+    "mcX" 'cargo-process-rm
+    "mck" 'cargo-process-clippy
+    "mcU" 'cargo-process-upgrade
+    "mnd" 'racer-find-definition
+    "ef"  'flymake-clear)
 #+END_SRC
 ***** C-C++ Mode
 #+BEGIN_SRC emacs-lisp
