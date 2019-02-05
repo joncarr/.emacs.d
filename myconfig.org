@@ -91,7 +91,7 @@
    (setq ispell-alternate-dictionary (file-truename "~/.emacs.d/misc/english-words.txt"))
   (flyspell-mode 1)
   (add-hook 'go-mode 'flyspell-prog-mode)
-  (add-hook 'rust-mode 'flyspell-prog-mode)
+  (add-hook 'rustic-mode 'flyspell-prog-mode)
   (add-hook 'javascript-mode 'flyspell-prog-mode)
   (add-hook 'c-mode 'flyspell-prog-mode)
   (add-hook 'c++-mode 'flyspell-prog-mode)
@@ -463,7 +463,11 @@
 *** General
 **** Line Highlight
 #+BEGIN_SRC emacs-lisp
-  (global-hl-line-mode t)
+  (global-hl-line-mode -1)
+  (add-hook 'prog-mode-hook
+    (lambda()
+      (hl-line-mode 1))
+    )
 #+END_SRC
 **** Prettify Symbols
 #+BEGIN_SRC emacs-lisp
@@ -583,7 +587,7 @@
                  ("shell" (or (mode . eshell-mode) (mode . shell-mode))))
                 ("programming" (or
                                 (or (mode . go-mode) (name . "^.*go$"))
-                                (mode . rust-mode)
+                                (mode . rustic-mode)
                                 (mode . python-mode)
                                 (mode . c-mode)
                                 (mode . c++-mode)))
@@ -846,22 +850,12 @@ newly created window
 #+END_SRC
 *** Rust
 #+BEGIN_SRC emacs-lisp
-   ;; (use-package rust-mode
-   ;;  :ensure t
-   ;;  :mode ("\\.rs\\'" . rust-mode)
-   ;;  :config
-   ;;  (setq rust-format-on-save t)
-   ;;  :hook (rust-mode-hook . flycheck-mode))
-
-  (use-package rustic
+   (use-package rust-mode
     :ensure t
-    :commands rustic-mode
+    :mode ("\\.rs\\'" . rust-mode)
     :config
-    (add-hook 'after-init-hook
-      (function (lambda()
-          (add-to-list 'auto-mode-alist '("\\.rs\\'" . rustic-mode)))))
-    (setq rustic-rls-pkg 'eglot))
-
+    (setq rust-format-on-save t)
+    :hook (rust-mode-hook . flycheck-mode))
 
   (use-package flycheck-rust
     :ensure t
@@ -898,6 +892,15 @@ newly created window
     :ensure t
     :mode (("\\.toml\\'" . toml-mode)
 	   ("\\Pipfile\\'" . toml-mode)))
+
+
+  (use-package rustic
+    :ensure t
+    :commands rustic-mode
+    :mode ("\\.rs\\'" . rustic-mode)
+    :hook (rust-mode . rustic-mode)
+    :config
+    (setq rustic-rls-pkg 'eglot))
 
 #+END_SRC
 *** C/C++
@@ -1166,7 +1169,10 @@ newly created window
 
   ;; Useful for jumping out of brackets, quotes, etc...
   (define-key evil-insert-state-map (kbd "C-e") 'move-end-of-line)
-  
+
+  ;; Use v key for expand region while in visual state
+  (define-key evil-visual-state-map (kbd "v") 'er/expand-region)
+
   ;; Keybindings for Macros
 
   ;; Colonize, from INSERT mode, Moves to End of line and adds semicolon
