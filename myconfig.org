@@ -131,7 +131,9 @@
 *** eglot
 #+BEGIN_SRC emacs-lisp
   (use-package eglot
-    :ensure t)
+    :ensure t
+    :config
+   (add-to-list 'eglot-server-programs '(go-mode . ("go-langserver"))))
 #+END_SRC
 *** fasd
 #+BEGIN_SRC emacs-lisp
@@ -344,13 +346,6 @@
     :ensure t
     :init (unbind-key "C-c v")
     :bind ("C-c v" . er/expand-region))
-#+END_SRC
-*** aggressive-indent
-#+BEGIN_SRC emacs-lisp
-  ;; (use-package aggressive-indent
-  ;;   :ensure t
-  ;;   :init (global-aggressive-indent-mode 1)
-  ;;   :diminish aggressive-indent-mode)
 #+END_SRC
 *** Highlight todos
 #+BEGIN_SRC emacs-lisp
@@ -812,6 +807,7 @@ newly created window
     :config
     (setq go-tab-width 4
 	  gofmt-command "goimports")
+    (add-hook 'go-mode-hook 'eglot-ensure)
     (add-hook 'before-save-hook 'gofmt-before-save))
 
 
