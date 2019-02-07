@@ -106,7 +106,12 @@
 #+BEGIN_SRC emacs-lisp
   (setq-default tab-always-indent nil)
 #+END_SRC
-** Environment
+*** Use async when possible
+#+BEGIN_SRC emacs-lisp
+  (use-package async
+    :ensure t
+    :init (dired-async-mode 1))
+#+END_SRC
 *** Exec Path From Shell
 #+BEGIN_SRC emacs-lisp
   (use-package exec-path-from-shell
@@ -119,13 +124,6 @@
     (exec-path-from-shell-copy-env "GOPATH")
     (exec-path-from-shell-copy-env "RUST_SRC_PATH")
     (exec-path-from-shell-copy-env "RLS_ROOT"))
-#+END_SRC
-** Async 
-*** Use async when possible
-#+BEGIN_SRC emacs-lisp
-  (use-package async
-    :ensure t
-    :init (dired-async-mode 1))
 #+END_SRC
 ** Packages
 *** eglot
@@ -188,12 +186,12 @@
     (helm-mode 1)
     :config
     (setq helm-M-x-fuzzy-match t))
-
+ 
   (use-package helm-make
     :ensure t
     :config
     (setq helm-make-fuzzy-matching 1))
-
+ 
   (use-package helm-ispell
     :ensure t
     :defer t)
@@ -213,11 +211,11 @@
       (define-key company-active-map (kbd "M-p") nil)
       (define-key company-active-map (kbd "C-n") #'company-select-next)
       (define-key company-active-map (kbd "C-p") #'company-select-previous))
-
+ 
     (global-set-key "\t" 'company-complete-common)
     (add-hook 'after-init-hook 'global-company-mode)
     :diminish company-mode)
-
+ 
   (use-package company-math
     :ensure t
     :after company
@@ -252,7 +250,7 @@
       :ensure t
       :init (yas-global-mode 1)
       :diminish yas-minor-mode)
-
+ 
     (use-package go-snippets
       :ensure t)
 #+END_SRC
@@ -1042,6 +1040,29 @@ newly created window
     :init (pdf-loader-install)
     :hook (pdf-view-mode . evil-mode))
 #+END_SRC
+*** ERC
+#+BEGIN_SRC emacs-lisp
+  (setq erc-nick "jeckmate")
+  (setq erc-prompt (lambda () (concat "[" (buffer-name) "]")))
+  (setq erc-hide-list '("JOIN" "PART" "QUIT"))
+  (setq erc-server-history-list '("irc.freenode.net"
+				  "localhost"))
+
+  (use-package erc-colorize
+    :ensure t
+    :defer t
+    :init (erc-colorize-mode 1))
+
+  (use-package erc-hl-nicks
+    :ensure t
+    :defer t
+    :config (erc-update-modules))
+
+  (use-package erc-twitch
+    :ensure t
+    :defer t
+    :hook (erc-mode . erc-twitch-enable))
+#+END_SRC
 ** Key and Keybindings
 *** which-key
 #+BEGIN_SRC emacs-lisp
@@ -1184,7 +1205,7 @@ newly created window
 #+BEGIN_SRC emacs-lisp
   (evil-leader/set-key
     "bk" 'kill-current-buffer
-    "bi" 'ibuffer
+    "bb" 'ibuffer
     "bs" 'helm-buffers-list
     "br" 'revert-buffer)
 #+END_SRC
