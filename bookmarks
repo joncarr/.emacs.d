@@ -2,7 +2,12 @@
 ;;; This format is meant to be slightly human-readable;
 ;;; nevertheless, you probably don't want to edit it.
 ;;; -*- End Of Bookmark File Format Version Stamp -*-
-(("rust racer"
+(("eglot call for eldoc message"
+ (filename . "~/code/emacs/eglot/eglot.el")
+ (front-context-string . "doc-message info")
+ (rear-context-string . "             (el")
+ (position . 98965))
+("rust racer"
  (filename . "~/.emacs.d/myconfig.org")
  (front-context-string . "r\n  :ensure t\n  ")
  (rear-context-string . "age company-race")
