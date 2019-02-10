@@ -138,27 +138,19 @@
     :commands lsp
     :config
     (setq lsp-prefer-flymake nil
-	  lsp-ui-sideline-delay 3
+	  ;; lsp-ui-sideline-delay 3
 	  lsp-auto-guess-root 1))
 
-  (use-package lsp-ui
-    :ensure t
-    :commands lsp-ui-mode
-    :hook (lsp-mode . lsp-ui-mode)
-    :config
-    (add-hook 'lsp-mode-hook '(lambda ()(funcall-interactively 'lsp-ui-doc-mode))))
+  ;; (use-package lsp-ui
+  ;;   :ensure t
+  ;;   :commands lsp-ui-mode
+  ;;   :hook (lsp-mode . lsp-ui-mode)
+  ;;   :config
+  ;;   (add-hook 'lsp-mode-hook '(lambda ()(funcall-interactively 'lsp-ui-doc-mode))))
 
   (use-package company-lsp
     :ensure t
     :commands company-lsp)
-#+END_SRC
-*** fasd
-#+BEGIN_SRC emacs-lisp
-  (use-package fasd
-    :ensure t
-    :config 
-    (setq fasd-enable-initial-prompt nil)
-    (global-fasd-mode 1))
 #+END_SRC
 *** RealGud Debugger
 #+BEGIN_SRC emacs-lisp
@@ -360,9 +352,7 @@
 *** expand-region
 #+BEGIN_SRC emacs-lisp
   (use-package expand-region
-    :ensure t
-    :init (unbind-key "C-c v")
-    :bind ("C-c v" . er/expand-region))
+    :ensure t)
 #+END_SRC
 *** Highlight todos
 #+BEGIN_SRC emacs-lisp
@@ -408,8 +398,8 @@
     #+END_SRC
 *** Evil Mode
 #+BEGIN_SRC emacs-lisp
-   (use-package goto-last-change
-     :ensure t)
+   ;; (use-package goto-last-change
+   ;;   :ensure t)
 
   (use-package evil-commentary
     :ensure t
@@ -602,28 +592,39 @@
 #+BEGIN_SRC emacs-lisp
   (global-set-key (kbd "C-x b") 'ibuffer)
   (setq ibuffer-saved-filter-groups
-        (quote (("default"
-                 ("dired" (mode . dired-mode))
-                 ("org" (name . "^.*org$"))
-                 ("web" (or (mode . web-mode) (mode . js2-mode)))
-                 ("shell" (or (mode . eshell-mode) (mode . shell-mode))))
-                ("programming" (or
-                                (or (mode . go-mode) (name . "^.*go$"))
-                                (mode . rustic-mode)
-                                (mode . python-mode)
-                                (mode . c-mode)
-                                (mode . c++-mode)))
-                ("emacs" (or
-                          (name . "^\\*scratch\\*$")
-                          (name . "^\\*Messages\\*$")))
-                )))
+	(quote (("home"
+	   ("Emacs Config" (filename . "myconfig.org"))
+	   ("Org" (mode . org-mode))
+	   ("Code" (or
+		    (mode . go-mode)
+		    (mode . rust-mode)
+		    (mode . c-mode)
+		    (mode . c++-mode)
+		    (mode . python-mode)
+		    (mode . rust-mode)))
+	   ("Web Dev" (or
+		       (mode . html-mode)
+		       (mode . scss-mode)
+		       (mode . css-mode)
+		       (mode . js2-mode)
+		       (mode . vue-mode)))
+	   ("Helm" (or
+		       (name . "\*helm")
+		       (name . "\*helm")))
+	   ("Git" (name . "\*magit"))
+	   ("ERC" (mode . erc-mode))
+	   ("Help" (or (name . "\*Help\*")
+		       (name . "\*Apropos\*")
+		       (name . "\*info\*"))))) ))
+
   (add-hook 'ibuffer-mode-hook
-            (lambda ()
-              (ibuffer-auto-mode 1)
-              (ibuffer-switch-to-saved-filter-groups "default")))
+	    (lambda ()
+	      (ibuffer-auto-mode 1)
+	      (ibuffer-switch-to-saved-filter-groups "home")))
 
   ;; Don't show filter groups if there are no buffers in that group
   (setq ibuffer-show-empty-filter-groups nil)
+  
 #+END_SRC
 **** Switch Buffers
 #+BEGIN_SRC emacs-lisp
@@ -746,25 +747,6 @@ newly created window
     (interactive)
     (org-babel-load-file (expand-file-name "~/.emacs.d/myconfig.org")))
 #+END_SRC
-*** copy-whole-line
-#+BEGIN_SRC emacs-lisp
-  (defun copy-whole-line ()
-    (interactive)
-    (save-excursion
-      (kill-new
-       (buffer-substring
-	(point-at-bol)
-	(point-at-eol)))))
-  (global-set-key (kbd "C-c w l") 'copy-whole-line)
-#+END_SRC
-*** kill-whole-word
-#+BEGIN_SRC emacs-lisp
-  (defun kill-whole-word ()
-    (interactive)
-    (backward-word)
-    (kill-word 1))
-  (global-set-key (kbd "C-c w w") 'kill-whole-word)
-#+END_SRC
 *** Emacs server shutdown
 #+BEGIN_SRC emacs-lisp
   ;;; define function to shutdown emacs server instance
@@ -861,7 +843,7 @@ newly created window
   (use-package lsp-go
     :ensure t
     :config
-    (require 'lsp-ui)
+    ;; (require 'lsp-ui)
     (lsp-ui-sideline-mode nil)
     (require 'lsp-clients)
     (require 'company-lsp)
@@ -907,8 +889,8 @@ newly created window
   (use-package lsp-rust
     :ensure t
     :config
-    (require 'lsp-ui)
-    (lsp-ui-sideline-mode nil)
+    ;; (require 'lsp-ui)
+    ;; (lsp-ui-sideline-mode nil)
     (require 'lsp-clients)
     (require 'company-lsp)
     (push 'company-lsp company-backends)
@@ -1204,26 +1186,23 @@ newly created window
 #+BEGIN_SRC emacs-lisp
   (evil-leader/set-key
     "SPC" 'helm-M-x
-    "." 'er/expand-region
-    "," 'fasd-find-file
     ";" 'shell-command)
 
   (global-set-key (kbd "C-c r") 'config-reload)
   (global-set-key (kbd "C-c e") 'config-visit)
 
+  ;; Use v key for expand region while in visual state
+  (define-key evil-visual-state-map (kbd "v") 'er/expand-region)
+
   ;; Allows me to use the tab key as it was designed
-  (define-key evil-insert-state-map (kbd "C-<tab>") 'tab-to-tab-stop)
+  (define-key evil-insert-state-map (kbd "<tab>") 'tab-to-tab-stop)
 
   ;; Useful for jumping out of brackets, quotes, etc...
   (define-key evil-insert-state-map (kbd "C-e") 'move-end-of-line)
 
-  ;; Use v key for expand region while in visual state
-  (define-key evil-visual-state-map (kbd "v") 'er/expand-region)
-
   ;; Keybindings for Macros
-
   ;; Colonize, from INSERT mode, Moves to End of line and adds semicolon
-  (global-set-key (kbd "C-<return>") 'colonize)
+  (define-key evil-insert-state-map (kbd "C-<return>") 'colonize)
 
 #+END_SRC
 **** BOOKMARKS
@@ -1524,12 +1503,4 @@ newly created window
   (evil-leader/set-key
     "op" 'helm-mini)
 
-#+END_SRC
-** Games
-*** Typing of Emacs 
-#+BEGIN_SRC emacs-lisp
-  (use-package typing
-    :ensure t
-    :defer t
-    )
 #+END_SRC
