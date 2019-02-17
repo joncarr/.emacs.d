@@ -128,29 +128,30 @@
 
   (let ((go-path (shell-command-to-string ". ~/.zshrc; echo -n $GOPATH")))
     (setenv "GOPATH" go-path))
+
+  (add-to-list 'exec-path (expand-file-name "~/.emacs.d/language-servers/build/install/kotlin-language-server/bin"))
+
 #+END_SRC
 ** Packages
 *** Language Server
 #+BEGIN_SRC emacs-lisp
-
   (use-package lsp-mode
     :ensure t
     :commands lsp
     :config
+    (add-to-list 'lsp-language-id-configuration '(kotlin-mode . "kotlin"))
+    (lsp-register-client
+     (make-lsp-client :new-connection (lsp-stdio-connection '("kotlin-language-server"))
+		      :major-modes '(kotlin-mode)
+		      :server-id 'kotlin-ls))
     (setq lsp-prefer-flymake nil
-	  ;; lsp-ui-sideline-delay 3
 	  lsp-auto-guess-root 1))
-
-  ;; (use-package lsp-ui
-  ;;   :ensure t
-  ;;   :commands lsp-ui-mode
-  ;;   :hook (lsp-mode . lsp-ui-mode)
-  ;;   :config
-  ;;   (add-hook 'lsp-mode-hook '(lambda ()(funcall-interactively 'lsp-ui-doc-mode))))
 
   (use-package company-lsp
     :ensure t
-    :commands company-lsp)
+    :commands company-lsp
+    :config
+    (setq company-lsp-enable-snippet t))
 #+END_SRC
 *** RealGud Debugger
 #+BEGIN_SRC emacs-lisp
@@ -261,9 +262,6 @@
       :ensure t
       :init (yas-global-mode 1)
       :diminish yas-minor-mode)
- 
-    (use-package go-snippets
-      :ensure t)
 #+END_SRC
 *** auto-yasnippet
 #+BEGIN_SRC emacs-lisp
@@ -451,8 +449,11 @@
 ** Version Control
 *** Magit
 #+BEGIN_SRC emacs-lisp
-  (use-package magit
-    :ensure t)
+  ;; (use-package magit
+  ;;   :ensure t)
+
+  ;; (use-package evil-magit
+  ;;   :ensure t)
 
 #+END_SRC
 *** GitGutter
@@ -477,11 +478,35 @@
 #+BEGIN_SRC emacs-lisp
 (global-prettify-symbols-mode t)
 #+END_SRC
+*** Set Font
+#+BEGIN_SRC emacs-lisp
+(add-to-list 'default-frame-alist '(font . "Fira Code-11"))
+#+END_SRC
 *** Themes
+**** Add custom theme folder
+#+BEGIN_SRC emacs-lisp
+(add-to-list 'custom-theme-load-path "~/.emacs.d/custom-themes")
+#+END_SRC
+**** Zen and Art
+#+BEGIN_SRC emacs-lisp
+  (use-package zen-and-art-theme
+    :disabled t
+    :ensure t
+    :init
+    (load-theme 'xresources :no-confirm))
+#+END_SRC
+**** Northcode
+#+BEGIN_SRC emacs-lisp
+  (use-package northcode-theme
+    :disabled t
+    :ensure t
+    :init
+    (load-theme 'xresources :no-confirm))
+#+END_SRC
 **** XResources
 #+BEGIN_SRC emacs-lisp
   (use-package xresources-theme
-    ;; :disabled t
+    :disabled t
     :ensure t
     :init
     (load-theme 'xresources :no-confirm))
@@ -489,7 +514,7 @@
 **** Gruvbox
 #+BEGIN_SRC emacs-lisp
   (use-package gruvbox-theme
-    :disabled t
+    ;; :disabled t
     :ensure t
     :init
     (load-theme 'gruvbox-dark-hard :no-confirm))
@@ -526,6 +551,11 @@
     :init
     (load-theme 'foggy-night :no-confirm))
 #+END_SRC
+*** All the Icons
+#+BEGIN_SRC emacs-lisp
+  (use-package all-the-icons
+    :ensure t)
+#+END_SRC
 *** Modeline
 **** Show Line and Column Numbers on modeline
 #+BEGIN_SRC emacs-lisp
@@ -559,7 +589,7 @@
 			    (projects . 10)
 			    ))
     (setq dashboard-banner-logo-title "")
-    (setq dashboard-startup-banner "~/.emacs.d/img/dashLogoBW.png"))
+    (setq dashboard-startup-banner "~/.emacs.d/img/dashLogo.png"))
 #+END_SRC
 *** rainbow-delimiters
 #+BEGIN_SRC emacs-lisp
@@ -692,33 +722,82 @@ newly created window
 #+BEGIN_SRC emacs-lisp
   (setq delete-by-moving-to-trash t)
 #+END_SRC
-*** Neotree
+*** Treemacs
 #+BEGIN_SRC emacs-lisp
-    (use-package neotree
-      :ensure t
-      :bind
-      ("C-c f t" . neotree-toggle)
-      :config
-      (setq neo-window-width 32
-	    neo-create-file-auto-open t
-	    neo-show-hidden-files t
-	    neo-mode-line-type 'neotree
-	    neo-auto-indent-point t
-	    neo-banner-message nil
-	    neo-smart-open t)
-       (add-hook 'neotree-mode-hook
-	      (lambda ()
-	      (define-key evil-normal-state-local-map (kbd "TAB") 'neotree-enter)
-	      (define-key evil-normal-state-local-map (kbd "SPC") 'neotree-quick-look)
-	      (define-key evil-normal-state-local-map (kbd "q") 'neotree-enter)
-	      (define-key evil-normal-state-local-map (kbd "RET") 'neotree-enter)
-	      (define-key evil-normal-state-local-map (kbd "g") 'neotree-refresh)
-	      (define-key evil-normal-state-local-map (kbd "j") 'neotree-next-line)
-	      (define-key evil-normal-state-local-map (kbd "k") 'neotree-previous-line)
-	      (define-key evil-normal-state-local-map (kbd "A") 'neotree-stretch-toggle)
-	      (define-key evil-normal-state-local-map (kbd "H") 'neotree-hidden-file-toggle)
-       ))
-  )
+  (use-package treemacs
+    :ensure t
+    :defer t
+    :config
+    (progn
+      (setq treemacs-collapse-dirs                 (if (executable-find "python") 3 0)
+	    treemacs-deferred-git-apply-delay      0.5
+	    treemacs-display-in-side-window        t
+	    treemacs-file-event-delay              5000
+	    treemacs-file-follow-delay             0.2
+	    treemacs-follow-after-init             t
+	    treemacs-git-command-pipe              ""
+	    treemacs-goto-tag-strategy             'refetch-index
+	    treemacs-indentation                   2
+	    treemacs-indentation-string            " "
+	    treemacs-is-never-other-window         nil
+	    treemacs-max-git-entries               5000
+	    treemacs-no-png-images                 nil
+	    treemacs-no-delete-other-windows       t
+	    treemacs-project-follow-cleanup        nil
+	    treemacs-persist-file                  (expand-file-name ".cache/treemacs-persist" user-emacs-directory)
+	    treemacs-recenter-distance             0.1
+	    treemacs-recenter-after-file-follow    nil
+	    treemacs-recenter-after-tag-follow     nil
+	    treemacs-recenter-after-project-jump   'always
+	    treemacs-recenter-after-project-expand 'on-distance
+	    treemacs-show-cursor                   nil
+	    treemacs-show-hidden-files             t
+	    treemacs-silent-filewatch              nil
+	    treemacs-silent-refresh                nil
+	    treemacs-sorting                       'alphabetic-desc
+	    treemacs-space-between-root-nodes      t
+	    treemacs-tag-follow-cleanup            t
+	    treemacs-tag-follow-delay              1.5
+	    treemacs-width                         85)
+
+      ;; The default width and height of the icons is 22 pixels. If you are
+      ;; using a Hi-DPI display, uncomment this to double the icon size.
+      (treemacs-resize-icons 18)
+
+      (treemacs-follow-mode t)
+      (treemacs-filewatch-mode t)
+      (treemacs-fringe-indicator-mode t)
+      (pcase (cons (not (null (executable-find "git")))
+		   (not (null (executable-find "python3"))))
+	(`(t . t)
+	 (treemacs-git-mode 'deferred))
+	(`(t . _)
+	 (treemacs-git-mode 'simple))))
+    :bind
+    (:map global-map
+	  ("M-0"       . treemacs-select-window)
+	  ("C-x t 1"   . treemacs-delete-other-windows)
+	  ("C-x t t"   . treemacs)
+	  ("C-x t B"   . treemacs-bookmark)
+	  ("C-x t C-t" . treemacs-find-file)
+	  ("C-x t M-t" . treemacs-find-tag)))
+
+  (use-package treemacs-evil
+    :after treemacs evil
+    :ensure t)
+
+  (use-package treemacs-projectile
+    :after treemacs projectile
+    :ensure t)
+
+  (use-package treemacs-icons-dired
+    :after treemacs dired
+    :ensure t
+    :config (treemacs-icons-dired-mode))
+
+  (use-package treemacs-magit
+    :after treemacs magit
+    :ensure t)
 #+END_SRC
 *** Protect user-writable files
 #+BEGIN_SRC emacs-lisp
@@ -840,14 +919,18 @@ newly created window
   (use-package go-add-tags
     :ensure t)
 
+  (use-package golint
+    :ensure t
+    :config
+    (add-to-list 'load-path (concat (getenv "GOPATH")  "/src/github.com/golang/lint/misc/emacs")))
+
   (use-package lsp-go
     :ensure t
     :config
-    ;; (require 'lsp-ui)
     (lsp-ui-sideline-mode nil)
     (require 'lsp-clients)
     (require 'company-lsp)
-    (push 'company-lsp company-backends) 
+    (push 'company-lsp company-backends)
     :hook ((go-mode . lsp) (go-mode . (lambda ()
 		       (setq company-idle-delay .2
 			     company-tooltip-limit 20)
@@ -908,6 +991,22 @@ newly created window
     :ensure t
     :mode (("\\.toml\\'" . toml-mode)
 	    ("/Pipfile\\'" . toml-mode)))
+#+END_SRC
+*** Kotlin
+#+BEGIN_SRC emacs-lisp
+  (use-package kotlin-mode
+    :ensure t
+    :mode ("\\.kt\\'")
+    :config
+    (require 'company-lsp)
+    :hook ((kotlin-mode . lsp) (kotlin-mode . (lambda ()
+		       (setq company-idle-delay .2
+			     company-tooltip-limit 20)
+		       (set(make-local-variable 'company-backends) '(company-lsp))))))
+
+
+  (use-package flycheck-kotlin
+    :ensure t)
 #+END_SRC
 *** C/C++
 #+BEGIN_SRC emacs-lisp
@@ -1059,6 +1158,9 @@ newly created window
   (setq erc-hide-list '("JOIN" "PART" "QUIT"))
   (setq erc-server-history-list '("irc.freenode.net"
 				  "localhost"))
+  
+  (add-hook 'erc-mode 'erc-notifications-mode)
+				  
 
   (use-package erc-colorize
     :ensure t
@@ -1195,7 +1297,7 @@ newly created window
   (define-key evil-visual-state-map (kbd "v") 'er/expand-region)
 
   ;; Allows me to use the tab key as it was designed
-  (define-key evil-insert-state-map (kbd "<tab>") 'tab-to-tab-stop)
+  (define-key evil-insert-state-map (kbd "C-<tab>") 'tab-to-tab-stop)
 
   ;; Useful for jumping out of brackets, quotes, etc...
   (define-key evil-insert-state-map (kbd "C-e") 'move-end-of-line)
@@ -1253,7 +1355,7 @@ newly created window
     "f." 'helm-find-files
     "fr" 'helm-recentf
     "fs" 'sudo-edit
-    "ft" 'neotree-toggle
+    "ft" 'treemacs-select-window
     "fce" 'config-visit 
     "fcr" 'config-reload)
 #+END_SRC

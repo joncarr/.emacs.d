@@ -12,3 +12,4 @@ projectile-bookmarks.eld
 .mc-lists.el
 ac-comphist.dat
 settings.el~
+language-servers/*
