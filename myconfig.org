@@ -112,7 +112,7 @@
     :ensure t
     :init (dired-async-mode 1))
 #+END_SRC
-*** ENV VARS
+*** ENV VARS & Load Path
 #+BEGIN_SRC emacs-lisp
   (let ((rust-src-path (shell-command-to-string ". ~/.zshrc; echo -n $RUST_SRC_PATH")))
     (setenv "RUST_SRC_PATH" rust-src-path))
@@ -129,7 +129,11 @@
   (let ((go-path (shell-command-to-string ". ~/.zshrc; echo -n $GOPATH")))
     (setenv "GOPATH" go-path))
 
-  (add-to-list 'exec-path (expand-file-name "~/.emacs.d/language-servers/build/install/kotlin-language-server/bin"))
+  (let ((java-home-path (shell-command-to-string ". ~/.zshrc; echo -n $JAVA_HOME")))
+    (setenv "JAVA_HOME" java-home-path))
+    
+  (add-to-list 'exec-path (expand-file-name "~/.emacs.d/language-servers/kotlin-language-server/install/kotlin-language-server/bin"))
+  (add-to-list 'exec-path (expand-file-name "~/code/go/bin/golangci-lint"))
 
 #+END_SRC
 ** Packages
@@ -138,26 +142,40 @@
   (use-package lsp-mode
     :ensure t
     :commands lsp
+    :load-path "~/code/emacs/lsp-mode"
     :config
-    (add-to-list 'lsp-language-id-configuration '(kotlin-mode . "kotlin"))
-    (lsp-register-client
-     (make-lsp-client :new-connection (lsp-stdio-connection '("kotlin-language-server"))
-		      :major-modes '(kotlin-mode)
-		      :server-id 'kotlin-ls))
+    ;; (add-to-list 'lsp-language-id-configuration '(kotlin-mode . "kotlin"))
+    ;; (lsp-register-client
+    ;;  (make-lsp-client :new-connection (lsp-stdio-connection '("kotlin-language-server"))
+    ;; 		    :major-modes '(kotlin-mode)
+    ;; 		    :server-id 'kotlin-ls))
     (setq lsp-prefer-flymake nil
 	  lsp-auto-guess-root 1))
+
+  (use-package lsp-ui
+    :ensure t
+    :config
+    (setq lsp-ui-sideline-delay 1.0
+	  lsp-ui-doc-enable nil)
+    )
 
   (use-package company-lsp
     :ensure t
     :commands company-lsp
     :config
     (setq company-lsp-enable-snippet t))
-#+END_SRC
-*** RealGud Debugger
-#+BEGIN_SRC emacs-lisp
-  (use-package realgud
+
+  (use-package dap-mode
     :ensure t
-    :defer t)
+    :config
+    (dap-mode 1)
+    (dap-ui-mode 1))
+#+END_SRC
+*** Origami
+#+BEGIN_SRC emacs-lisp
+  (use-package origami
+    :ensure t
+    :hook (prog-mode . origami-mode))
 #+END_SRC
 *** Fix Regex
 #+BEGIN_SRC emacs-lisp
@@ -174,6 +192,14 @@
     :config
     (setq key-chord-two-keys-delay 0.075)
     :diminish key-chord-mode)
+#+END_SRC
+*** GitGutter
+#+BEGIN_SRC emacs-lisp
+  (use-package git-gutter
+    :ensure t
+    :config
+    (add-hook 'prog-mode-hook 'git-gutter-mode)
+    :diminish git-gutter-mode)
 #+END_SRC
 *** Diminish
 #+BEGIN_SRC emacs-lisp
@@ -445,24 +471,6 @@
     (require 'evil-org-agenda)
     (evil-org-agenda-set-keys)
   )
-#+END_SRC
-** Version Control
-*** Magit
-#+BEGIN_SRC emacs-lisp
-  ;; (use-package magit
-  ;;   :ensure t)
-
-  ;; (use-package evil-magit
-  ;;   :ensure t)
-
-#+END_SRC
-*** GitGutter
-#+BEGIN_SRC emacs-lisp
-  (use-package git-gutter
-    :ensure t
-    :config
-    (add-hook 'prog-mode-hook 'git-gutter-mode)
-    :diminish git-gutter-mode)
 #+END_SRC
 ** Look and Feel 
 *** General
@@ -758,7 +766,7 @@ newly created window
 	    treemacs-space-between-root-nodes      t
 	    treemacs-tag-follow-cleanup            t
 	    treemacs-tag-follow-delay              1.5
-	    treemacs-width                         85)
+	    treemacs-width                         25)
 
       ;; The default width and height of the icons is 22 pixels. If you are
       ;; using a Hi-DPI display, uncomment this to double the icon size.
@@ -880,36 +888,33 @@ newly created window
 #+END_SRC
 *** Go
 #+BEGIN_SRC emacs-lisp
-  (use-package go-projectile
-    :ensure t)
-
   (use-package go-dlv
-    :ensure t)
-
-  (use-package go-gopath
     :ensure t)
 
   (use-package go-mode
     :ensure t
     :mode ("\\.go\\'" . go-mode)
     :init (unbind-key "C-c C-j" go-mode-map)
-    :hook ((before-save . gofmt-before-save) (go-mode . flycheck-mode))
     :config
+    (require 'lsp-ui)
+    (require 'lsp-clients)
+    (require 'company-lsp)
     (setq go-tab-width 4
-	  gofmt-command "goimports"))
+	  gofmt-command "goimports")
+    :hook (
+	   (before-save . gofmt-before-save)
+	   (go-mode . flycheck-mode)
+	   (go-mode . lsp)
+	   (go-mode . (lambda ()
+			(push 'company-lsp company-backends)
+			(setq company-idle-delay .2
+			      company-tooltip-limit 20)
+			(set(make-local-variable 'company-backends) '(company-lsp))))
+	   ))
 
   (use-package go-impl
     :ensure t
     :after go-mode)
-
-  (use-package go-eldoc
-    :ensure t
-    :after go-mode
-    :hook (go-mode . go-eldoc-setup)
-    :config
-    (if (file-exists-p (concat (projectile-project-root) "go.mod"))
-	(setq go-eldoc-gocode "~/code/go/bin/gocode-gomod")
-      (setq go-eldoc-gocode "~/code/go/bin/gocode")))
 
   (use-package go-guru
     :ensure t
@@ -923,25 +928,13 @@ newly created window
     :ensure t
     :config
     (add-to-list 'load-path (concat (getenv "GOPATH")  "/src/github.com/golang/lint/misc/emacs")))
-
-  (use-package lsp-go
-    :ensure t
-    :config
-    (lsp-ui-sideline-mode nil)
-    (require 'lsp-clients)
-    (require 'company-lsp)
-    (push 'company-lsp company-backends)
-    :hook ((go-mode . lsp) (go-mode . (lambda ()
-		       (setq company-idle-delay .2
-			     company-tooltip-limit 20)
-		       (set(make-local-variable 'company-backends) '(company-lsp))))))
 #+END_SRC
 *** Rust
 #+BEGIN_SRC emacs-lisp
   (use-package rust-mode
     :ensure t
     :mode "\\.rs\\'"
-    :hook (rust-mode . flycheck-mode)  
+    :hook (rust-mode . flycheck-mode)
     :config
     (setq rust-format-on-save t))
 
@@ -952,35 +945,34 @@ newly created window
     :init
     (add-hook 'flycheck-mode-hook 'flycheck-rust-setup))
 
-  (use-package racer
-    :ensure t
-    :commands racer-mode
-    :diminish racer-mode
-    :hook
-    ((rust-mode . racer-mode)
-     (racer-mode . eldoc-mode))
-    :config
-    (setq racer-complete-insert-argument-placeholders 1))
+  ;; (use-package racer
+  ;;   :ensure t
+  ;;   :commands racer-mode
+  ;;   :diminish racer-mode
+  ;;   :hook
+  ;;   ((rust-mode . racer-mode)
+  ;;    (racer-mode . eldoc-mode))
+  ;;   :config
+  ;;   (setq racer-complete-insert-argument-placeholders 1))
 
-  (use-package company-racer
-    :ensure t
-    :config
-    (push 'company-racer company-backends )
-    (add-hook 'racer-mode 'company-mode)
-    (setq company-tooltip-align-annotations t))
+  ;; (use-package company-racer
+  ;;   :ensure t
+  ;;   :config
+  ;;   (push 'company-racer company-backends )
+  ;;   (add-hook 'racer-mode 'company-mode)
+  ;;   (setq company-tooltip-align-annotations t))
 
   (use-package lsp-rust
     :ensure t
     :config
-    ;; (require 'lsp-ui)
-    ;; (lsp-ui-sideline-mode nil)
+    (require 'lsp-ui)
     (require 'lsp-clients)
     (require 'company-lsp)
     (push 'company-lsp company-backends)
     :hook ((rust-mode . lsp) (rust-mode . (lambda ()
 		       (setq company-idle-delay .2
 			     company-tooltip-limit 20)
-		       (set(make-local-variable 'company-backends) '(company-lsp ))))))
+		       (set(make-local-variable 'company-backends) '(company-lsp company-racer ))))))
 
   (use-package cargo
     :ensure t
@@ -992,6 +984,41 @@ newly created window
     :mode (("\\.toml\\'" . toml-mode)
 	    ("/Pipfile\\'" . toml-mode)))
 #+END_SRC
+*** Latex
+#+BEGIN_SRC emacs-lisp
+  (use-package auctex
+    :ensure t
+    :hook (tex-mode . auctex-mode))
+
+  (use-package tex-site
+    :ensure auctex
+    :config
+      ;; some-config-here
+    (use-package latex
+      :config
+      ;; stuff defined in latex.el config'ed here
+    ))
+
+  (use-package company-auctex
+    :ensure t
+    :hook (tex-mode . (lambda ()
+			   (setq company-idle-delay .2
+				 company-tooltip-limit 20)
+			   (set(make-local-variable 'company-backends) '(company-auctex)))))
+#+END_SRC
+*** Bash
+#+BEGIN_SRC emacs-lisp
+  (defun my-sh ()
+    (require 'lsp-mode)
+    (require 'lsp-ui)
+    (require 'lsp-clients)
+    (add-hook 'sh-mode #'lsp)
+    (add-hook 'sh-mode 'company-mode)
+    (add-hook 'sh-mode (lambda ()
+			    (set(make-local-variable 'company-backends) '(company-lsp)))))
+
+  (add-hook 'sh-mode #'my-sh)
+#+END_SRC
 *** Kotlin
 #+BEGIN_SRC emacs-lisp
   (use-package kotlin-mode
@@ -999,6 +1026,8 @@ newly created window
     :mode ("\\.kt\\'")
     :config
     (require 'company-lsp)
+    (require 'lsp-ui)
+    (require 'lsp-clients)
     :hook ((kotlin-mode . lsp) (kotlin-mode . (lambda ()
 		       (setq company-idle-delay .2
 			     company-tooltip-limit 20)
@@ -1006,30 +1035,44 @@ newly created window
 
 
   (use-package flycheck-kotlin
-    :ensure t)
+    :ensure t
+    :config (flycheck-kotlin-setup))
+
 #+END_SRC
 *** C/C++
 #+BEGIN_SRC emacs-lisp
+
+  (use-package cc-mode
+    :config
+    (require 'company-lsp)
+    (require 'lsp-ui)
+    (require 'lsp-clients)
+    (add-hook 'c-mode-common-hook
+	      (lambda ()
+		(when (derived-mode-p 'c-mode 'c++-mode)
+		  (lsp)
+		  (set(make-local-variable 'company-backends) '(company-lsp))))))
+
   (use-package clang-format
     :ensure t
     :defer t
     :config
     (setq clang-format-style-option "stroustrup"))
 
-  (use-package company-irony
-    :ensure t
-    :config
-    (add-to-list 'company-backends 'company-irony))
+  ;; (use-package company-irony
+  ;;   :ensure t
+  ;;   :config
+  ;;   (add-to-list 'company-backends 'company-irony))
 
-  (use-package irony
-    :ensure t
-    :hook (
-	   (c++-mode-hook . irony-mode)
-	   (c-mode-hook . irony-mode)
-	   (irony-mode-hook . irony-cdb-autosetup-compile-options)))
-  (with-eval-after-load 'company
-    (add-hook 'c++-mode-hook 'company-mode)
-    (add-hook 'c-mode-hook 'company-mode))
+  ;; (use-package irony
+  ;;   :ensure t
+  ;;   :hook (
+  ;; 	 (c++-mode-hook . irony-mode)
+  ;; 	 (c-mode-hook . irony-mode)
+  ;; 	 (irony-mode-hook . irony-cdb-autosetup-compile-options)))
+  ;; (with-eval-after-load 'company
+  ;;   (add-hook 'c++-mode-hook 'company-mode)
+  ;;   (add-hook 'c-mode-hook 'company-mode))
 
   (use-package cmake-mode
     :ensure t
@@ -1038,6 +1081,7 @@ newly created window
 
   (use-package ggtags
     :ensure t
+    :diminish ggtags-mode
     :config
     (add-hook 'c-mode-common-hook
 	    (lambda ()
@@ -1046,10 +1090,12 @@ newly created window
 
   (use-package helm-gtags
     :ensure t
+    :diminish helm-gtags-mode
     :hook (
 	   (c-mode . helm-gtags-mode)
 	   (c++-mode . helm-gtags-mode)
 	   (java-mode . helm-gtags-mode)))
+
 #+END_SRC
 *** Web
 #+BEGIN_SRC emacs-lisp
@@ -1214,7 +1260,7 @@ newly created window
 	  "SPC m n" "navigate to"
 	  "SPC n" "navigate/narrow"
 	  "SPC n n" "narrow"
-	  "SPC o" "joncarr"
+	  "SPC o" "origami"
 	  "SPC p" "projects"
 	  "SPC p s" "projects/search"
 	  "SPC s" "search"
@@ -1316,7 +1362,8 @@ newly created window
 #+BEGIN_SRC emacs-lisp
   (evil-leader/set-key
     "bk" 'kill-current-buffer
-    "bb" 'ibuffer
+    "bb" 'ido-switch-buffer
+    "bB" 'ibuffer
     "bs" 'helm-buffers-list
     "br" 'revert-buffer)
 #+END_SRC
@@ -1600,9 +1647,9 @@ newly created window
     "yc" 'aya-create
     "ye" 'aya-expand)
 #+END_SRC
-**** OWN 
+**** ORIGAMI
 #+BEGIN_SRC emacs-lisp
   (evil-leader/set-key
-    "op" 'helm-mini)
+    "oo" 'origami-toggle-node)
 
 #+END_SRC
