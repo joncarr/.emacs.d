@@ -11,6 +11,10 @@
   (package-refresh-contents)
   (package-install 'use-package))
 
+
+(if (and (version< emacs-version "26.3") (>= libgnutls-version 30604))
+    (setq gnutls-algorithm-priority "NORMAL:-VERS-TLS1.3"))
+
 (org-babel-load-file (expand-file-name "~/.emacs.d/myconfig.org"))
 
 (put 'narrow-to-region 'disabled nil)

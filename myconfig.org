@@ -1,5 +1,10 @@
 * Configuration
 ** General Settings
+*** Defer Use package
+#+BEGIN_SRC emacs-lisp
+(setq use-package-always-defer t
+  use-package-always-ensure t)
+#+END_SRC
 *** Variables
 #+BEGIN_SRC emacs-lisp
 (defvar user-setup-directory          (expand-file-name "setup"          user-emacs-directory))
@@ -131,10 +136,15 @@
 
   (let ((java-home-path (shell-command-to-string ". ~/.zshrc; echo -n $JAVA_HOME")))
     (setenv "JAVA_HOME" java-home-path))
-    
+
   (add-to-list 'exec-path (expand-file-name "~/.emacs.d/language-servers/kotlin-language-server/install/kotlin-language-server/bin"))
   (add-to-list 'exec-path (expand-file-name "~/code/go/bin/golangci-lint"))
 
+#+END_SRC
+*** File Associations
+#+BEGIN_SRC emacs-lisp
+;; setup files ending in “.gohtml” to open in web-mode
+(add-to-list 'auto-mode-alist '("\\.gohtml\\'" . web-mode))
 #+END_SRC
 ** Packages
 *** Language Server
@@ -142,18 +152,20 @@
   (use-package lsp-mode
     :ensure t
     :commands lsp
-    :load-path "~/code/emacs/lsp-mode"
+    ;; :load-path "~/code/emacs/lsp-mode"
     :config
     ;; (add-to-list 'lsp-language-id-configuration '(kotlin-mode . "kotlin"))
     ;; (lsp-register-client
     ;;  (make-lsp-client :new-connection (lsp-stdio-connection '("kotlin-language-server"))
-    ;; 		    :major-modes '(kotlin-mode)
-    ;; 		    :server-id 'kotlin-ls))
+    ;;		    :major-modes '(kotlin-mode)
+    ;;		    :server-id 'kotlin-ls))
     (setq lsp-prefer-flymake nil
 	  lsp-auto-guess-root 1))
 
   (use-package lsp-ui
     :ensure t
+    :commands lsp-ui-mode
+    :defer t
     :config
     (setq lsp-ui-sideline-delay 1.0
 	  lsp-ui-doc-enable nil)
@@ -224,12 +236,12 @@
     (helm-mode 1)
     :config
     (setq helm-M-x-fuzzy-match t))
- 
+
   (use-package helm-make
     :ensure t
     :config
     (setq helm-make-fuzzy-matching 1))
- 
+
   (use-package helm-ispell
     :ensure t
     :defer t)
@@ -240,20 +252,20 @@
     :ensure t
     :config
      (setq company-minimum-prefix-length 3
-    	company-tooltip-align-annotations t
-    	company-tooltip-flip-when-above t
-     	company-idle-delay 0
-    	)
+	company-tooltip-align-annotations t
+	company-tooltip-flip-when-above t
+	company-idle-delay 0
+	)
      (with-eval-after-load 'company
       (define-key company-active-map (kbd "M-n") nil)
       (define-key company-active-map (kbd "M-p") nil)
       (define-key company-active-map (kbd "C-n") #'company-select-next)
       (define-key company-active-map (kbd "C-p") #'company-select-previous))
- 
+
     (global-set-key "\t" 'company-complete-common)
     (add-hook 'after-init-hook 'global-company-mode)
     :diminish company-mode)
- 
+
   (use-package company-math
     :ensure t
     :after company
@@ -261,7 +273,7 @@
     (add-to-list 'company-backends 'company-math-symbols-unicode)
     (add-to-list 'company-backends 'company-math-symbols-latex))
 #+END_SRC
-*** Ido Vertical 
+*** Ido Vertical
 #+BEGIN_SRC emacs-lisp
   (use-package ido-vertical-mode
     :ensure t
@@ -472,7 +484,7 @@
     (evil-org-agenda-set-keys)
   )
 #+END_SRC
-** Look and Feel 
+** Look and Feel
 *** General
 **** Line Highlight
 #+BEGIN_SRC emacs-lisp
@@ -488,7 +500,7 @@
 #+END_SRC
 *** Set Font
 #+BEGIN_SRC emacs-lisp
-(add-to-list 'default-frame-alist '(font . "Fira Code-11"))
+(add-to-list 'default-frame-alist '(font . "Hack-10"))
 #+END_SRC
 *** Themes
 **** Add custom theme folder
@@ -530,7 +542,7 @@
 **** Gotham
 #+BEGIN_SRC emacs-lisp
   (use-package gotham-theme
-    :disabled t				
+    :disabled t
     :ensure t
     :init
     (load-theme 'gotham :no-confirm))
@@ -546,7 +558,7 @@
 **** Nord
 #+BEGIN_SRC emacs-lisp
   (use-package nord-theme
-    :disabled t				
+    :disabled t
     :ensure t
     :init
     (load-theme 'nord :no-confirm))
@@ -598,6 +610,7 @@
 			    ))
     (setq dashboard-banner-logo-title "")
     (setq dashboard-startup-banner "~/.emacs.d/img/dashLogo.png"))
+    (setq initial-buffer-choice (lambda () (get-buffer "*dashboard*")))
 #+END_SRC
 *** rainbow-delimiters
 #+BEGIN_SRC emacs-lisp
@@ -609,7 +622,7 @@
 #+BEGIN_SRC emacs-lisp
   (use-package golden-ratio
     :ensure t
-    :config 
+    :config
     (golden-ratio-mode 1)
     :diminish golden-ratio-mode)
 #+END_SRC
@@ -662,7 +675,7 @@
 
   ;; Don't show filter groups if there are no buffers in that group
   (setq ibuffer-show-empty-filter-groups nil)
-  
+
 #+END_SRC
 **** Switch Buffers
 #+BEGIN_SRC emacs-lisp
@@ -712,7 +725,7 @@ newly created window
     (other-window 1))
   (global-set-key (kbd "C-x 3") 'split-and-follow-vertically)
 #+END_SRC
-**** Window specific key bindings 
+**** Window specific key bindings
 #+BEGIN_SRC emacs-lisp
   (bind-key "C-c w =" 'balance-windows)
   (bind-key "C-c w k" 'delete-window)
@@ -729,83 +742,6 @@ newly created window
 *** Delete files to trash
 #+BEGIN_SRC emacs-lisp
   (setq delete-by-moving-to-trash t)
-#+END_SRC
-*** Treemacs
-#+BEGIN_SRC emacs-lisp
-  (use-package treemacs
-    :ensure t
-    :defer t
-    :config
-    (progn
-      (setq treemacs-collapse-dirs                 (if (executable-find "python") 3 0)
-	    treemacs-deferred-git-apply-delay      0.5
-	    treemacs-display-in-side-window        t
-	    treemacs-file-event-delay              5000
-	    treemacs-file-follow-delay             0.2
-	    treemacs-follow-after-init             t
-	    treemacs-git-command-pipe              ""
-	    treemacs-goto-tag-strategy             'refetch-index
-	    treemacs-indentation                   2
-	    treemacs-indentation-string            " "
-	    treemacs-is-never-other-window         nil
-	    treemacs-max-git-entries               5000
-	    treemacs-no-png-images                 nil
-	    treemacs-no-delete-other-windows       t
-	    treemacs-project-follow-cleanup        nil
-	    treemacs-persist-file                  (expand-file-name ".cache/treemacs-persist" user-emacs-directory)
-	    treemacs-recenter-distance             0.1
-	    treemacs-recenter-after-file-follow    nil
-	    treemacs-recenter-after-tag-follow     nil
-	    treemacs-recenter-after-project-jump   'always
-	    treemacs-recenter-after-project-expand 'on-distance
-	    treemacs-show-cursor                   nil
-	    treemacs-show-hidden-files             t
-	    treemacs-silent-filewatch              nil
-	    treemacs-silent-refresh                nil
-	    treemacs-sorting                       'alphabetic-desc
-	    treemacs-space-between-root-nodes      t
-	    treemacs-tag-follow-cleanup            t
-	    treemacs-tag-follow-delay              1.5
-	    treemacs-width                         25)
-
-      ;; The default width and height of the icons is 22 pixels. If you are
-      ;; using a Hi-DPI display, uncomment this to double the icon size.
-      (treemacs-resize-icons 18)
-
-      (treemacs-follow-mode t)
-      (treemacs-filewatch-mode t)
-      (treemacs-fringe-indicator-mode t)
-      (pcase (cons (not (null (executable-find "git")))
-		   (not (null (executable-find "python3"))))
-	(`(t . t)
-	 (treemacs-git-mode 'deferred))
-	(`(t . _)
-	 (treemacs-git-mode 'simple))))
-    :bind
-    (:map global-map
-	  ("M-0"       . treemacs-select-window)
-	  ("C-x t 1"   . treemacs-delete-other-windows)
-	  ("C-x t t"   . treemacs)
-	  ("C-x t B"   . treemacs-bookmark)
-	  ("C-x t C-t" . treemacs-find-file)
-	  ("C-x t M-t" . treemacs-find-tag)))
-
-  (use-package treemacs-evil
-    :after treemacs evil
-    :ensure t)
-
-  (use-package treemacs-projectile
-    :after treemacs projectile
-    :ensure t)
-
-  (use-package treemacs-icons-dired
-    :after treemacs dired
-    :ensure t
-    :config (treemacs-icons-dired-mode))
-
-  (use-package treemacs-magit
-    :after treemacs magit
-    :ensure t)
 #+END_SRC
 *** Protect user-writable files
 #+BEGIN_SRC emacs-lisp
@@ -888,17 +824,40 @@ newly created window
 #+END_SRC
 *** Go
 #+BEGIN_SRC emacs-lisp
-  (use-package go-dlv
-    :ensure t)
+  ;; (use-package go-dlv
+  ;;   :ensure t)
+
+  ;; (use-package go-mode
+  ;;   :ensure t
+  ;;   :defer t
+  ;;   :mode ("\\.go\\'" . go-mode)
+  ;;   :config
+  ;;   (require 'lsp-ui)
+  ;;   (require 'lsp-clients)
+  ;;   (require 'company-lsp)
+  ;;   (unbind-key "C-c C-j" go-mode-map)
+  ;;   (setq go-tab-width 4
+  ;;	gofmt-command "goimports")
+  ;;   :hook (
+  ;;	 (before-save . gofmt-before-save)
+  ;;	 (go-mode . flycheck-mode)
+  ;;	 (go-mode . lsp)
+  ;;	 (go-mode . (lambda ()
+  ;;		      (push 'company-lsp company-backends)
+  ;;		      (setq company-idle-delay .2
+  ;;			    company-tooltip-limit 20)
+  ;;		      (set(make-local-variable 'company-backends) '(company-lsp))))
+  ;;	 ))
 
   (use-package go-mode
     :ensure t
+    :defer t
     :mode ("\\.go\\'" . go-mode)
-    :init (unbind-key "C-c C-j" go-mode-map)
     :config
     (require 'lsp-ui)
     (require 'lsp-clients)
     (require 'company-lsp)
+    (unbind-key "C-c C-j" go-mode-map)
     (setq go-tab-width 4
 	  gofmt-command "goimports")
     :hook (
@@ -908,26 +867,24 @@ newly created window
 	   (go-mode . (lambda ()
 			(push 'company-lsp company-backends)
 			(setq company-idle-delay .2
-			      company-tooltip-limit 20)
-			(set(make-local-variable 'company-backends) '(company-lsp))))
+			      company-tooltip-limit 20)))
 	   ))
+  ;; (use-package go-impl
+  ;;   :ensure t
+  ;;   :after go-mode)
 
-  (use-package go-impl
-    :ensure t
-    :after go-mode)
+  ;; (use-package go-guru
+  ;;   :ensure t
+  ;;   :after go-mode
+  ;;   :config (add-hook 'go-mode-hook #'go-guru-hl-identifier-mode))
 
-  (use-package go-guru
-    :ensure t
-    :after go-mode
-    :config (add-hook 'go-mode-hook #'go-guru-hl-identifier-mode))
+  ;; (use-package go-add-tags
+  ;;   :ensure t)
 
-  (use-package go-add-tags
-    :ensure t)
-
-  (use-package golint
-    :ensure t
-    :config
-    (add-to-list 'load-path (concat (getenv "GOPATH")  "/src/github.com/golang/lint/misc/emacs")))
+  ;; (use-package golint
+  ;;   :ensure t
+  ;;   :config
+  ;;   (add-to-list 'load-path (concat (getenv "GOPATH")  "/src/github.com/golang/lint/misc/emacs")))
 #+END_SRC
 *** Rust
 #+BEGIN_SRC emacs-lisp
@@ -942,37 +899,15 @@ newly created window
     :ensure t
     :after flycheck
     :commands flycheck-rust-setup
-    :init
-    (add-hook 'flycheck-mode-hook 'flycheck-rust-setup))
-
-  ;; (use-package racer
-  ;;   :ensure t
-  ;;   :commands racer-mode
-  ;;   :diminish racer-mode
-  ;;   :hook
-  ;;   ((rust-mode . racer-mode)
-  ;;    (racer-mode . eldoc-mode))
-  ;;   :config
-  ;;   (setq racer-complete-insert-argument-placeholders 1))
-
-  ;; (use-package company-racer
-  ;;   :ensure t
-  ;;   :config
-  ;;   (push 'company-racer company-backends )
-  ;;   (add-hook 'racer-mode 'company-mode)
-  ;;   (setq company-tooltip-align-annotations t))
-
-  (use-package lsp-rust
-    :ensure t
     :config
     (require 'lsp-ui)
     (require 'lsp-clients)
     (require 'company-lsp)
-    (push 'company-lsp company-backends)
+    :init (add-hook 'flycheck-mode-hook 'flycheck-rust-setup)
     :hook ((rust-mode . lsp) (rust-mode . (lambda ()
 		       (setq company-idle-delay .2
 			     company-tooltip-limit 20)
-		       (set(make-local-variable 'company-backends) '(company-lsp company-racer ))))))
+		       (set(make-local-variable 'company-backends) '(company-lsp))))))
 
   (use-package cargo
     :ensure t
@@ -986,25 +921,22 @@ newly created window
 #+END_SRC
 *** Latex
 #+BEGIN_SRC emacs-lisp
-  (use-package auctex
-    :ensure t
-    :hook (tex-mode . auctex-mode))
+  ;; (use-package auctex
+  ;;   :ensure t
+  ;;   :hook (tex-mode . auctex-mode))
 
-  (use-package tex-site
-    :ensure auctex
-    :config
-      ;; some-config-here
-    (use-package latex
-      :config
-      ;; stuff defined in latex.el config'ed here
-    ))
+  ;; (use-package tex-site
+  ;;   :ensure auctex
+  ;;   :config
+  ;;     ;; some-config-here
+  ;;   )
 
-  (use-package company-auctex
-    :ensure t
-    :hook (tex-mode . (lambda ()
-			   (setq company-idle-delay .2
-				 company-tooltip-limit 20)
-			   (set(make-local-variable 'company-backends) '(company-auctex)))))
+  ;; (use-package company-auctex
+  ;;   :ensure t
+  ;;   :hook (tex-mode . (lambda ()
+  ;;			 (setq company-idle-delay .2
+  ;;			       company-tooltip-limit 20)
+  ;;			 (set(make-local-variable 'company-backends) '(company-auctex)))))
 #+END_SRC
 *** Bash
 #+BEGIN_SRC emacs-lisp
@@ -1043,6 +975,7 @@ newly created window
 #+BEGIN_SRC emacs-lisp
 
   (use-package cc-mode
+    :defer t
     :config
     (require 'company-lsp)
     (require 'lsp-ui)
@@ -1059,25 +992,6 @@ newly created window
     :config
     (setq clang-format-style-option "stroustrup"))
 
-  ;; (use-package company-irony
-  ;;   :ensure t
-  ;;   :config
-  ;;   (add-to-list 'company-backends 'company-irony))
-
-  ;; (use-package irony
-  ;;   :ensure t
-  ;;   :hook (
-  ;; 	 (c++-mode-hook . irony-mode)
-  ;; 	 (c-mode-hook . irony-mode)
-  ;; 	 (irony-mode-hook . irony-cdb-autosetup-compile-options)))
-  ;; (with-eval-after-load 'company
-  ;;   (add-hook 'c++-mode-hook 'company-mode)
-  ;;   (add-hook 'c-mode-hook 'company-mode))
-
-  (use-package cmake-mode
-    :ensure t
-    :config
-    (add-to-list 'auto-mode-alist '("\\CMakeLists.txt\\'" . cmake-mode)))
 
   (use-package ggtags
     :ensure t
@@ -1113,24 +1027,24 @@ newly created window
     :defer t
     :interpreter ("node"   . js2-mode)
     :mode (("\\.js\\'"     . js2-mode)
-           ("\\.jsx\\'"    . js2-jsx-mode)
-           ("\\.json$"     . js-mode)
-           ("\\.template$" . json-mode))
+	   ("\\.jsx\\'"    . js2-jsx-mode)
+	   ("\\.json$"     . js-mode)
+	   ("\\.template$" . json-mode))
     :config
     (progn
       (add-hook 'js2-mode-hook (lambda () (setq mode-name "js2")))
       (add-hook 'js2-mode-hook (lambda () (setq js2-basic-offset 4)))
       (add-hook 'js2-mode-hook (lambda ()
-                               (bind-key "M-j" 'join-line-or-lines-in-region js2-mode-map)))
+			       (bind-key "M-j" 'join-line-or-lines-in-region js2-mode-map)))
       (setq js2-skip-preprocessor-directives t
-            js2-mode-show-parse-errors nil
-            js2-mode-show-strict-warnings nil
-            js2-highlight-level 3           ; Try to highlight most ECMA built-ins
-            )
+	    js2-mode-show-parse-errors nil
+	    js2-mode-show-strict-warnings nil
+	    js2-highlight-level 3           ; Try to highlight most ECMA built-ins
+	    )
       (setq-default js2-additional-externs
-                    '("$" "unsafeWindow" "localStorage" "jQuery"
-                      "setTimeout" "setInterval" "location" "skewer"
-                      "console" "phantom"))))
+		    '("$" "unsafeWindow" "localStorage" "jQuery"
+		      "setTimeout" "setInterval" "location" "skewer"
+		      "console" "phantom"))))
 
   (use-package js2-refactor               ; Refactor Javascript
     :ensure t
@@ -1143,14 +1057,14 @@ newly created window
   (use-package web-mode
     :defer t
     :init (progn
-            (add-to-list 'auto-mode-alist '("\\.gohtml?\\'" . web-mode))
-            (add-to-list 'auto-mode-alist '("\\.html?\\'" . web-mode))
-            (add-to-list 'auto-mode-alist '("\\.vue?\\'" . web-mode)))
+	    (add-to-list 'auto-mode-alist '("\\.gohtml?\\'" . web-mode))
+	    (add-to-list 'auto-mode-alist '("\\.html?\\'" . web-mode))
+	    (add-to-list 'auto-mode-alist '("\\.vue?\\'" . web-mode)))
     :config (progn
-              (add-hook 'web-mode-hook
-                        (lambda ()
-                          (setq web-mode-style-padding 4)
-                          (setq web-mode-script-padding 4)))))
+	      (add-hook 'web-mode-hook
+			(lambda ()
+			  (setq web-mode-style-padding 4)
+			  (setq web-mode-script-padding 4)))))
 
   (use-package nvm
     :defer t)
@@ -1204,9 +1118,9 @@ newly created window
   (setq erc-hide-list '("JOIN" "PART" "QUIT"))
   (setq erc-server-history-list '("irc.freenode.net"
 				  "localhost"))
-  
+
   (add-hook 'erc-mode 'erc-notifications-mode)
-				  
+
 
   (use-package erc-colorize
     :ensure t
@@ -1334,7 +1248,7 @@ newly created window
 #+BEGIN_SRC emacs-lisp
   (evil-leader/set-key
     "SPC" 'helm-M-x
-    ";" 'shell-command)
+    "!" 'shell-command)
 
   (global-set-key (kbd "C-c r") 'config-reload)
   (global-set-key (kbd "C-c e") 'config-visit)
@@ -1402,8 +1316,8 @@ newly created window
     "f." 'helm-find-files
     "fr" 'helm-recentf
     "fs" 'sudo-edit
-    "ft" 'treemacs-select-window
-    "fce" 'config-visit 
+    "ft" 'dired-jump
+    "fce" 'config-visit
     "fcr" 'config-reload)
 #+END_SRC
 **** GOTO
@@ -1457,7 +1371,7 @@ newly created window
     "jc" 'avy-goto-char-2
     "js" 'avy-goto-symbol-1)
 #+END_SRC
-**** MAJOR MODE 
+**** MAJOR MODE
 ***** Go Mode
 #+BEGIN_SRC emacs-lisp
   (evil-leader/set-key-for-mode 'go-mode
@@ -1493,7 +1407,7 @@ newly created window
 #+END_SRC
 ***** Rust Mode
 #+BEGIN_SRC emacs-lisp
-  (evil-leader/set-key-for-mode 'rustic-mode 
+  (evil-leader/set-key-for-mode 'rustic-mode
     "mcf" 'cargo-process-fmt
     "mci" 'cargo-process-init
     "mca" 'cargo-process-add
@@ -1518,7 +1432,7 @@ newly created window
     "mnd" 'racer-find-definition
     "ef"  'flymake-clear)
 
-    (evil-leader/set-key-for-mode 'rust-mode 
+    (evil-leader/set-key-for-mode 'rust-mode
     "mcf" 'cargo-process-fmt
     "mci" 'cargo-process-init
     "mca" 'cargo-process-add
