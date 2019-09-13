@@ -1248,6 +1248,7 @@ newly created window
 #+BEGIN_SRC emacs-lisp
   (evil-leader/set-key
     "SPC" 'helm-M-x
+    ";" 'comment-dwim
     "!" 'shell-command)
 
   (global-set-key (kbd "C-c r") 'config-reload)
