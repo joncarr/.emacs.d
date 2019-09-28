@@ -181,7 +181,9 @@
     :ensure t
     :config
     (dap-mode 1)
-    (dap-ui-mode 1))
+    (dap-ui-mode 1)
+    (dap-tooltip-mode 1)
+    (tooltip-mode 1))
 #+END_SRC
 *** Origami
 #+BEGIN_SRC emacs-lisp
@@ -854,6 +856,7 @@ newly created window
     :defer t
     :mode ("\\.go\\'" . go-mode)
     :config
+    (require 'dap-go)
     (require 'lsp-ui)
     (require 'lsp-clients)
     (require 'company-lsp)
@@ -977,6 +980,7 @@ newly created window
   (use-package cc-mode
     :defer t
     :config
+    (require 'dap-gdb-lldb)
     (require 'company-lsp)
     (require 'lsp-ui)
     (require 'lsp-clients)
@@ -1016,80 +1020,149 @@ newly created window
   (use-package web-mode
     :ensure t
     :defer t
-    :mode (("\\.html\\'" . web-mode)))
-
-  (use-package css-mode                   ; CSS
-    :defer t
-    :config (setq css-indent-offset 4))
-
-  (use-package js2-mode                   ; Powerful Javascript mode
-    :ensure t
-    :defer t
-    :interpreter ("node"   . js2-mode)
-    :mode (("\\.js\\'"     . js2-mode)
-	   ("\\.jsx\\'"    . js2-jsx-mode)
-	   ("\\.json$"     . js-mode)
-	   ("\\.template$" . json-mode))
+    :mode (("\\.html\\'" . web-mode)
+	   ("\\.gohtml\\'" . web-mode))
     :config
-    (progn
-      (add-hook 'js2-mode-hook (lambda () (setq mode-name "js2")))
-      (add-hook 'js2-mode-hook (lambda () (setq js2-basic-offset 4)))
-      (add-hook 'js2-mode-hook (lambda ()
-			       (bind-key "M-j" 'join-line-or-lines-in-region js2-mode-map)))
-      (setq js2-skip-preprocessor-directives t
-	    js2-mode-show-parse-errors nil
-	    js2-mode-show-strict-warnings nil
-	    js2-highlight-level 3           ; Try to highlight most ECMA built-ins
-	    )
-      (setq-default js2-additional-externs
-		    '("$" "unsafeWindow" "localStorage" "jQuery"
-		      "setTimeout" "setInterval" "location" "skewer"
-		      "console" "phantom"))))
+    (require 'company-lsp)
+    (require 'lsp-ui)
+    (require 'lsp-clients)
+    :hook ((web-mode . lsp) (web-mode . (lambda ()
+		       (setq company-idle-delay .2
+			     company-tooltip-limit 20)
+		       (set(make-local-variable 'company-backends) '(company-lsp))))))
 
-  (use-package js2-refactor               ; Refactor Javascript
-    :ensure t
+
+  (use-package css-mode           
     :defer t
-    :init
-    (add-hook 'js2-mode-hook 'js2-refactor-mode)
+    :mode ("\\.css\\'")
+    :config (setq css-indent-offset 4)
+    (require 'company-lsp)
+    (require 'lsp-ui)
+    (require 'lsp-clients)
+    :hook ((css-mode . lsp) (css-mode . (lambda ()
+		       (setq company-idle-delay .2
+			     company-tooltip-limit 20)
+		       (set(make-local-variable 'company-backends) '(company-lsp))))))
+
+  (use-package scss-mode     
+    :defer t
+    :mode ("\\.scss\\'")
     :config
-    (js2r-add-keybindings-with-prefix "C-c m r"))
+    (require 'company-lsp)
+    (require 'lsp-ui)
+    (require 'lsp-clients)
+    :hook ((scss-mode . lsp) (scss-mode . (lambda ()
+		       (setq company-idle-delay .2
+			     company-tooltip-limit 20)
+		       (set(make-local-variable 'company-backends) '(company-lsp))))))
 
-  (use-package web-mode
+
+  (use-package sass-mode     
     :defer t
-    :init (progn
-	    (add-to-list 'auto-mode-alist '("\\.gohtml?\\'" . web-mode))
-	    (add-to-list 'auto-mode-alist '("\\.html?\\'" . web-mode))
-	    (add-to-list 'auto-mode-alist '("\\.vue?\\'" . web-mode)))
-    :config (progn
-	      (add-hook 'web-mode-hook
-			(lambda ()
-			  (setq web-mode-style-padding 4)
-			  (setq web-mode-script-padding 4)))))
-
-  (use-package nvm
-    :defer t)
-  (use-package html-script-src
-    :defer t)
-  (use-package sass-mode
-    :defer t)
-
-  (use-package tern                       ; Javascript IDE backend
-    :ensure t
-    :defer t
-    :init (add-hook 'js2-mode-hook #'tern-mode)
+    :mode ("\\.sass\\'")
     :config
-    ;; Don't generate port files
-    (add-to-list 'tern-command "--no-port-file" 'append))
+    (require 'company-lsp)
+    (require 'lsp-ui)
+    (require 'lsp-clients)
+    :hook ((sass-mode . lsp) (sass-mode . (lambda ()
+		       (setq company-idle-delay .2
+			     company-tooltip-limit 20)
+		       (set(make-local-variable 'company-backends) '(company-lsp))))))
+		       
 
-  (use-package company-tern               ; Auto-completion for javascript
-    :ensure t
+  (use-package js3-mode     
     :defer t
-    :after company
-    :config (add-to-list 'company-backends 'company-tern))
+    :mode ("\\.js\\'")
+    :config
+    (require 'dap-firefox)
+    (require 'company-lsp)
+    (require 'lsp-ui)
+    (require 'lsp-clients)
+    :hook ((js3-mode . lsp) (js3-mode . (lambda ()
+		       (setq company-idle-delay .2
+			     company-tooltip-limit 20)
+		       (set(make-local-variable 'company-backends) '(company-lsp))))))
 
-  (use-package company-web
-    :ensure t
-    :config (add-to-list 'company-backends 'company-web))
+
+  (use-package vue-mode     
+    :defer t
+    :mode ("\\.vue\\'")
+    :config
+    (require 'company-lsp)
+    (require 'lsp-ui)
+    (require 'lsp-clients)
+    :hook ((vue-mode . lsp) (vue-mode . (lambda ()
+		       (setq company-idle-delay .2
+			     company-tooltip-limit 20)
+		       (set(make-local-variable 'company-backends) '(company-lsp))))))
+  ;; (use-package js2-mode                   ; Powerful Javascript mode
+  ;;   :ensure t
+  ;;   :defer t
+  ;;   :interpreter ("node"   . js2-mode)
+  ;;   :mode (("\\.js\\'"     . js2-mode)
+  ;; 	 ("\\.jsx\\'"    . js2-jsx-mode)
+  ;; 	 ("\\.json$"     . js-mode)
+  ;; 	 ("\\.template$" . json-mode))
+  ;;   :config
+  ;;   (progn
+  ;;     (add-hook 'js2-mode-hook (lambda () (setq mode-name "js2")))
+  ;;     (add-hook 'js2-mode-hook (lambda () (setq js2-basic-offset 4)))
+  ;;     (add-hook 'js2-mode-hook (lambda ()
+  ;; 			     (bind-key "M-j" 'join-line-or-lines-in-region js2-mode-map)))
+  ;;     (setq js2-skip-preprocessor-directives t
+  ;; 	  js2-mode-show-parse-errors nil
+  ;; 	  js2-mode-show-strict-warnings nil
+  ;; 	  js2-highlight-level 3           ; Try to highlight most ECMA built-ins
+  ;; 	  )
+  ;;     (setq-default js2-additional-externs
+  ;; 		  '("$" "unsafeWindow" "localStorage" "jQuery"
+  ;; 		    "setTimeout" "setInterval" "location" "skewer"
+  ;; 		    "console" "phantom"))))
+
+  ;; (use-package js2-refactor               ; Refactor Javascript
+  ;;   :ensure t
+  ;;   :defer t
+  ;;   :init
+  ;;   (add-hook 'js2-mode-hook 'js2-refactor-mode)
+  ;;   :config
+  ;;   (js2r-add-keybindings-with-prefix "C-c m r"))
+
+  ;; (use-package web-mode
+  ;;   :defer t
+  ;;   :init (progn
+  ;; 	  (add-to-list 'auto-mode-alist '("\\.gohtml?\\'" . web-mode))
+  ;; 	  (add-to-list 'auto-mode-alist '("\\.html?\\'" . web-mode))
+  ;; 	  (add-to-list 'auto-mode-alist '("\\.vue?\\'" . web-mode)))
+  ;;   :config (progn
+  ;; 	    (add-hook 'web-mode-hook
+  ;; 		      (lambda ()
+  ;; 			(setq web-mode-style-padding 4)
+  ;; 			(setq web-mode-script-padding 4)))))
+
+  ;; (use-package nvm
+  ;;   :defer t)
+  ;; (use-package html-script-src
+  ;;   :defer t)
+  ;; (use-package sass-mode
+  ;;   :defer t)
+
+  ;; (use-package tern                       ; Javascript IDE backend
+  ;;   :ensure t
+  ;;   :defer t
+  ;;   :init (add-hook 'js2-mode-hook #'tern-mode)
+  ;;   :config
+  ;;   ;; Don't generate port files
+  ;;   (add-to-list 'tern-command "--no-port-file" 'append))
+
+  ;; (use-package company-tern               ; Auto-completion for javascript
+  ;;   :ensure t
+  ;;   :defer t
+  ;;   :after company
+  ;;   :config (add-to-list 'company-backends 'company-tern))
+
+  ;; (use-package company-web
+  ;;   :ensure t
+  ;;   :config (add-to-list 'company-backends 'company-web))
 #+END_SRC
 *** Python
 #+BEGIN_SRC emacs-lisp
