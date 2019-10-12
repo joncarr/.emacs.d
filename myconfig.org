@@ -109,7 +109,10 @@
     #+END_SRC
 *** TAB behavior
 #+BEGIN_SRC emacs-lisp
-  (setq-default tab-always-indent nil)
+  (setq-default tab-always-indent t)	
+  (setq-default indent-tabs-mode nil)
+  (setq-default tab-width 4)
+  (setq indent-line-function 'insert-tab)
 #+END_SRC
 *** Use async when possible
 #+BEGIN_SRC emacs-lisp
@@ -322,18 +325,19 @@
 *** Emmet
 #+BEGIN_SRC emacs-lisp
   (use-package emmet-mode
-    :ensure t
-    :config
-    (add-hook 'web-mode-hook 'emmet-mode)
-    (add-hook 'sgml-mode-hook 'emmet-mode)
-    (add-hook 'css-mode-hook 'emmet-mode)
-    (add-hook 'emmet-mode-hook (lambda ()
+	:ensure t
+	:config
+        (global-set-key (kbd "TAB") 'emmet-expand-line)
+	(add-hook 'web-mode-hook 'emmet-mode)
+	(add-hook 'sgml-mode-hook 'emmet-mode)
+	(add-hook 'css-mode-hook 'emmet-mode)
+	(add-hook 'emmet-mode-hook (lambda ()
 				 (setq emmet-indent-after-insert nil)
 				 (setq emmet-indentation 4)
 				 (setq emmet-move-cursor-between-quotes t)
 				 )
-	      )
-    )
+		  )
+	)
 #+END_SRC
 *** projectile
 #+BEGIN_SRC emacs-lisp
@@ -458,6 +462,10 @@
      :init (evil-snipe-mode 1)
      :diminish evil-snipe-local-mode)
 
+   (use-package evil-tabs
+     :ensure t
+     :init (global-evil-tabs-mode t))
+
    (use-package evil-surround
      :ensure t
      :config (global-evil-surround-mode 1)
@@ -512,34 +520,34 @@
 **** Zen and Art
 #+BEGIN_SRC emacs-lisp
   (use-package zen-and-art-theme
-    :disabled t
-    :ensure t
-    :init
-    (load-theme 'xresources :no-confirm))
+	:disabled t
+	:ensure t
+	:init
+	(load-theme 'zen-and-art :no-confirm))
+#+END_SRC
+**** Atom One Dark
+#+BEGIN_SRC emacs-lisp
+  (use-package atom-one-dark-theme
+	;; :disabled t
+	:ensure t
+	:init
+	(load-theme 'atom-one-dark :no-confirm))
 #+END_SRC
 **** Northcode
 #+BEGIN_SRC emacs-lisp
   (use-package northcode-theme
-    :disabled t
-    :ensure t
-    :init
-    (load-theme 'xresources :no-confirm))
-#+END_SRC
-**** XResources
-#+BEGIN_SRC emacs-lisp
-  (use-package xresources-theme
-    :disabled t
-    :ensure t
-    :init
-    (load-theme 'xresources :no-confirm))
+	:disabled t
+	:ensure t
+	:init
+	(load-theme 'northcode :no-confirm))
 #+END_SRC
 **** Gruvbox
 #+BEGIN_SRC emacs-lisp
   (use-package gruvbox-theme
-    ;; :disabled t
-    :ensure t
-    :init
-    (load-theme 'gruvbox-dark-hard :no-confirm))
+	:disabled t
+	:ensure t
+	:init
+	(load-theme 'gruvbox-dark-hard :no-confirm))
 #+END_SRC
 **** Gotham
 #+BEGIN_SRC emacs-lisp
@@ -568,10 +576,10 @@
 **** Foggy Night
 #+BEGIN_SRC emacs-lisp
   (use-package foggy-night-theme
-    :disabled t
-    :ensure t
-    :init
-    (load-theme 'foggy-night :no-confirm))
+	:disabled t
+	:ensure t
+	:init
+	(load-theme 'foggy-night :no-confirm))
 #+END_SRC
 *** All the Icons
 #+BEGIN_SRC emacs-lisp
@@ -980,6 +988,10 @@ newly created window
   (use-package cc-mode
     :defer t
     :config
+    (setq-default c-basic-offset 4
+                  tab-width 4
+				  c-indent-level 4
+                  indent-tabs-mode t)
     (require 'dap-gdb-lldb)
     (require 'company-lsp)
     (require 'lsp-ui)
@@ -1014,6 +1026,8 @@ newly created window
 	   (c++-mode . helm-gtags-mode)
 	   (java-mode . helm-gtags-mode)))
 
+  (use-package make-mode
+    :hook (make-mode . (lambda() setq indent-tabs-mode t)))
 #+END_SRC
 *** Web
 #+BEGIN_SRC emacs-lisp
