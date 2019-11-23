@@ -17,4 +17,5 @@
 
 (org-babel-load-file (expand-file-name "~/.emacs.d/myconfig.org"))
 
+
 (put 'narrow-to-region 'disabled nil)

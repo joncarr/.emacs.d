@@ -122,6 +122,9 @@
 #+END_SRC
 *** ENV VARS & Load Path
 #+BEGIN_SRC emacs-lisp
+  (let ((path (shell-command-to-string ". ~/.zshrc; echo -n $PATH")))
+    (setenv "PATH" path))
+
   (let ((rust-src-path (shell-command-to-string ". ~/.zshrc; echo -n $RUST_SRC_PATH")))
     (setenv "RUST_SRC_PATH" rust-src-path))
 
@@ -142,6 +145,7 @@
 
   (add-to-list 'exec-path (expand-file-name "~/.emacs.d/language-servers/kotlin-language-server/install/kotlin-language-server/bin"))
   (add-to-list 'exec-path (expand-file-name "~/code/go/bin/golangci-lint"))
+  (add-to-list 'exec-path (expand-file-name "~/.cargo/bin/ra_lsp_server"))
 
 #+END_SRC
 *** File Associations
@@ -153,6 +157,7 @@
 *** Language Server
 #+BEGIN_SRC emacs-lisp
   (use-package lsp-mode
+    :init (setq lsp-rust-server 'rust-anayzer)
     :ensure t
     :commands lsp
     ;; :load-path "~/code/emacs/lsp-mode"
@@ -517,21 +522,21 @@
 #+BEGIN_SRC emacs-lisp
 (add-to-list 'custom-theme-load-path "~/.emacs.d/custom-themes")
 #+END_SRC
-**** Zen and Art
+**** Doom Themes
 #+BEGIN_SRC emacs-lisp
-  (use-package zen-and-art-theme
-	:disabled t
-	:ensure t
-	:init
-	(load-theme 'zen-and-art :no-confirm))
+  (use-package doom-themes
+    ;; :disabled t
+    :ensure t
+    :init
+    (load-theme 'doom-gruvbox :no-confirm))
 #+END_SRC
 **** Atom One Dark
 #+BEGIN_SRC emacs-lisp
   (use-package atom-one-dark-theme
-	;; :disabled t
-	:ensure t
-	:init
-	(load-theme 'atom-one-dark :no-confirm))
+    :disabled t
+    :ensure t
+    :init
+    (load-theme 'atom-one-dark :no-confirm))
 #+END_SRC
 **** Northcode
 #+BEGIN_SRC emacs-lisp
@@ -564,14 +569,6 @@
     :ensure t
     :config
     (load-theme 'zenburn :no-confirm))
-#+END_SRC
-**** Nord
-#+BEGIN_SRC emacs-lisp
-  (use-package nord-theme
-    :disabled t
-    :ensure t
-    :init
-    (load-theme 'nord :no-confirm))
 #+END_SRC
 **** Foggy Night
 #+BEGIN_SRC emacs-lisp
@@ -903,22 +900,23 @@ newly created window
     :ensure t
     :mode "\\.rs\\'"
     :hook (rust-mode . flycheck-mode)
+	:init (setq lsp-rust-server 'rust-analyzer)
     :config
-    (setq rust-format-on-save t))
+    (setq rust-format-on-save t)
+    (require 'lsp-ui)
+    (require 'lsp-clients)
+    (require 'company-lsp)
+    :hook ((rust-mode . lsp) (rust-mode . (lambda ()
+		       (setq company-idle-delay .2
+			     company-tooltip-limit 20)
+		       (set(make-local-variable 'company-backends) '(company-lsp))))))
 
     (use-package flycheck-rust
     :ensure t
     :after flycheck
     :commands flycheck-rust-setup
     :config
-    (require 'lsp-ui)
-    (require 'lsp-clients)
-    (require 'company-lsp)
-    :init (add-hook 'flycheck-mode-hook 'flycheck-rust-setup)
-    :hook ((rust-mode . lsp) (rust-mode . (lambda ()
-		       (setq company-idle-delay .2
-			     company-tooltip-limit 20)
-		       (set(make-local-variable 'company-backends) '(company-lsp))))))
+    :init (add-hook 'flycheck-mode-hook 'flycheck-rust-setup))
 
   (use-package cargo
     :ensure t
@@ -984,199 +982,130 @@ newly created window
 #+END_SRC
 *** C/C++
 #+BEGIN_SRC emacs-lisp
-
   (use-package cc-mode
-    :defer t
-    :config
-    (setq-default c-basic-offset 4
-                  tab-width 4
+	:defer t
+	:config
+	(setq-default c-basic-offset 4
+				  tab-width 4
 				  c-indent-level 4
-                  indent-tabs-mode t)
-    (require 'dap-gdb-lldb)
-    (require 'company-lsp)
-    (require 'lsp-ui)
-    (require 'lsp-clients)
-    (add-hook 'c-mode-common-hook
-	      (lambda ()
+				  indent-tabs-mode t)
+	(require 'dap-gdb-lldb)
+	(require 'company-lsp)
+	(require 'lsp-ui)
+	(require 'lsp-clients)
+	(add-hook 'c-mode-common-hook
+		  (lambda ()
 		(when (derived-mode-p 'c-mode 'c++-mode)
 		  (lsp)
 		  (set(make-local-variable 'company-backends) '(company-lsp))))))
 
   (use-package clang-format
-    :ensure t
-    :defer t
-    :config
-    (setq clang-format-style-option "stroustrup"))
-
+	:ensure t
+	:defer t
+	:config
+	(setq clang-format-style-option "stroustrup"))
 
   (use-package ggtags
-    :ensure t
-    :diminish ggtags-mode
-    :config
-    (add-hook 'c-mode-common-hook
-	    (lambda ()
-	      (when (derived-mode-p 'c-mode 'c++-mode 'java-mode)
+	:ensure t
+	:diminish ggtags-mode
+	:config
+	(add-hook 'c-mode-common-hook
+		(lambda ()
+		  (when (derived-mode-p 'c-mode 'c++-mode 'java-mode)
 		(ggtags-mode 1)))))
 
   (use-package helm-gtags
-    :ensure t
-    :diminish helm-gtags-mode
-    :hook (
+	:ensure t
+	:diminish helm-gtags-mode
+	:hook (
 	   (c-mode . helm-gtags-mode)
 	   (c++-mode . helm-gtags-mode)
 	   (java-mode . helm-gtags-mode)))
 
   (use-package make-mode
-    :hook (make-mode . (lambda() setq indent-tabs-mode t)))
+	:hook (make-mode . (lambda() setq indent-tabs-mode t)))
 #+END_SRC
 *** Web
 #+BEGIN_SRC emacs-lisp
+
   (use-package web-mode
-    :ensure t
-    :defer t
-    :mode (("\\.html\\'" . web-mode)
+	:ensure t
+	:defer t
+	:mode (("\\.html\\'" . web-mode)
 	   ("\\.gohtml\\'" . web-mode))
-    :config
-    (require 'company-lsp)
-    (require 'lsp-ui)
-    (require 'lsp-clients)
-    :hook ((web-mode . lsp) (web-mode . (lambda ()
-		       (setq company-idle-delay .2
-			     company-tooltip-limit 20)
-		       (set(make-local-variable 'company-backends) '(company-lsp))))))
+	:config
+	(require 'company-lsp)
+	(require 'lsp-ui)
+	(require 'lsp-clients)
+	:hook ((web-mode . lsp) (web-mode . emmet-mode) (web-mode . (lambda ()
+			   (setq company-idle-delay .2
+				 company-tooltip-limit 20)
+			   (set(make-local-variable 'company-backends) '(company-lsp))))))
 
 
   (use-package css-mode           
-    :defer t
-    :mode ("\\.css\\'")
-    :config (setq css-indent-offset 4)
-    (require 'company-lsp)
-    (require 'lsp-ui)
-    (require 'lsp-clients)
-    :hook ((css-mode . lsp) (css-mode . (lambda ()
-		       (setq company-idle-delay .2
-			     company-tooltip-limit 20)
-		       (set(make-local-variable 'company-backends) '(company-lsp))))))
+	:defer t
+	:mode ("\\.css\\'")
+	:config (setq css-indent-offset 4)
+	(require 'company-lsp)
+	(require 'lsp-ui)
+	(require 'lsp-clients)
+	:hook ((css-mode . lsp) (css-mode . (lambda ()
+			   (setq company-idle-delay .2
+				 company-tooltip-limit 20)
+			   (set(make-local-variable 'company-backends) '(company-lsp))))))
 
   (use-package scss-mode     
-    :defer t
-    :mode ("\\.scss\\'")
-    :config
-    (require 'company-lsp)
-    (require 'lsp-ui)
-    (require 'lsp-clients)
-    :hook ((scss-mode . lsp) (scss-mode . (lambda ()
-		       (setq company-idle-delay .2
-			     company-tooltip-limit 20)
-		       (set(make-local-variable 'company-backends) '(company-lsp))))))
+	:defer t
+	:mode ("\\.scss\\'")
+	:config
+	(require 'company-lsp)
+	(require 'lsp-ui)
+	(require 'lsp-clients)
+	:hook ((scss-mode . lsp) (scss-mode . (lambda ()
+			   (setq company-idle-delay .2
+				 company-tooltip-limit 20)
+			   (set(make-local-variable 'company-backends) '(company-lsp))))))
 
 
   (use-package sass-mode     
-    :defer t
-    :mode ("\\.sass\\'")
-    :config
-    (require 'company-lsp)
-    (require 'lsp-ui)
-    (require 'lsp-clients)
-    :hook ((sass-mode . lsp) (sass-mode . (lambda ()
-		       (setq company-idle-delay .2
-			     company-tooltip-limit 20)
-		       (set(make-local-variable 'company-backends) '(company-lsp))))))
-		       
+	:defer t
+	:mode ("\\.sass\\'")
+	:config
+	(require 'company-lsp)
+	(require 'lsp-ui)
+	(require 'lsp-clients)
+	:hook ((sass-mode . lsp) (sass-mode . (lambda ()
+			   (setq company-idle-delay .2
+				 company-tooltip-limit 20)
+			   (set(make-local-variable 'company-backends) '(company-lsp))))))
 
-  (use-package js3-mode     
-    :defer t
-    :mode ("\\.js\\'")
-    :config
-    (require 'dap-firefox)
-    (require 'company-lsp)
-    (require 'lsp-ui)
-    (require 'lsp-clients)
-    :hook ((js3-mode . lsp) (js3-mode . (lambda ()
-		       (setq company-idle-delay .2
-			     company-tooltip-limit 20)
-		       (set(make-local-variable 'company-backends) '(company-lsp))))))
+
+  (use-package js2-mode     
+	:defer t
+	:mode ("\\.js\\'")
+	:config
+	(require 'dap-firefox)
+	(require 'company-lsp)
+	(require 'lsp-ui)
+	(require 'lsp-clients)
+	:hook ((js2-mode . lsp) (js2-mode . (lambda ()
+			   (setq company-idle-delay .2
+				 company-tooltip-limit 20)
+			   (set(make-local-variable 'company-backends) '(company-lsp))))))
 
 
   (use-package vue-mode     
-    :defer t
-    :mode ("\\.vue\\'")
-    :config
-    (require 'company-lsp)
-    (require 'lsp-ui)
-    (require 'lsp-clients)
-    :hook ((vue-mode . lsp) (vue-mode . (lambda ()
-		       (setq company-idle-delay .2
-			     company-tooltip-limit 20)
-		       (set(make-local-variable 'company-backends) '(company-lsp))))))
-  ;; (use-package js2-mode                   ; Powerful Javascript mode
-  ;;   :ensure t
-  ;;   :defer t
-  ;;   :interpreter ("node"   . js2-mode)
-  ;;   :mode (("\\.js\\'"     . js2-mode)
-  ;; 	 ("\\.jsx\\'"    . js2-jsx-mode)
-  ;; 	 ("\\.json$"     . js-mode)
-  ;; 	 ("\\.template$" . json-mode))
-  ;;   :config
-  ;;   (progn
-  ;;     (add-hook 'js2-mode-hook (lambda () (setq mode-name "js2")))
-  ;;     (add-hook 'js2-mode-hook (lambda () (setq js2-basic-offset 4)))
-  ;;     (add-hook 'js2-mode-hook (lambda ()
-  ;; 			     (bind-key "M-j" 'join-line-or-lines-in-region js2-mode-map)))
-  ;;     (setq js2-skip-preprocessor-directives t
-  ;; 	  js2-mode-show-parse-errors nil
-  ;; 	  js2-mode-show-strict-warnings nil
-  ;; 	  js2-highlight-level 3           ; Try to highlight most ECMA built-ins
-  ;; 	  )
-  ;;     (setq-default js2-additional-externs
-  ;; 		  '("$" "unsafeWindow" "localStorage" "jQuery"
-  ;; 		    "setTimeout" "setInterval" "location" "skewer"
-  ;; 		    "console" "phantom"))))
-
-  ;; (use-package js2-refactor               ; Refactor Javascript
-  ;;   :ensure t
-  ;;   :defer t
-  ;;   :init
-  ;;   (add-hook 'js2-mode-hook 'js2-refactor-mode)
-  ;;   :config
-  ;;   (js2r-add-keybindings-with-prefix "C-c m r"))
-
-  ;; (use-package web-mode
-  ;;   :defer t
-  ;;   :init (progn
-  ;; 	  (add-to-list 'auto-mode-alist '("\\.gohtml?\\'" . web-mode))
-  ;; 	  (add-to-list 'auto-mode-alist '("\\.html?\\'" . web-mode))
-  ;; 	  (add-to-list 'auto-mode-alist '("\\.vue?\\'" . web-mode)))
-  ;;   :config (progn
-  ;; 	    (add-hook 'web-mode-hook
-  ;; 		      (lambda ()
-  ;; 			(setq web-mode-style-padding 4)
-  ;; 			(setq web-mode-script-padding 4)))))
-
-  ;; (use-package nvm
-  ;;   :defer t)
-  ;; (use-package html-script-src
-  ;;   :defer t)
-  ;; (use-package sass-mode
-  ;;   :defer t)
-
-  ;; (use-package tern                       ; Javascript IDE backend
-  ;;   :ensure t
-  ;;   :defer t
-  ;;   :init (add-hook 'js2-mode-hook #'tern-mode)
-  ;;   :config
-  ;;   ;; Don't generate port files
-  ;;   (add-to-list 'tern-command "--no-port-file" 'append))
-
-  ;; (use-package company-tern               ; Auto-completion for javascript
-  ;;   :ensure t
-  ;;   :defer t
-  ;;   :after company
-  ;;   :config (add-to-list 'company-backends 'company-tern))
-
-  ;; (use-package company-web
-  ;;   :ensure t
-  ;;   :config (add-to-list 'company-backends 'company-web))
+	:defer t
+	:mode ("\\.vue\\'")
+	:config
+	(require 'company-lsp)
+	(require 'lsp-ui)
+	(require 'lsp-clients)
+	:hook ((vue-mode . lsp) (vue-mode . (lambda ()
+			   (setq company-idle-delay .2
+				 company-tooltip-limit 20)
+			   (set(make-local-variable 'company-backends) '(company-lsp))))))
 #+END_SRC
 *** Python
 #+BEGIN_SRC emacs-lisp
@@ -1336,6 +1265,7 @@ newly created window
   (evil-leader/set-key
     "SPC" 'helm-M-x
     ";" 'comment-dwim
+    "TAB" 'c-indent-line-or-region
     "!" 'shell-command)
 
   (global-set-key (kbd "C-c r") 'config-reload)
