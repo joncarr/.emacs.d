@@ -1,12 +1,12 @@
 * Configuration
 ** General Settings
 *** Defer Use package
-#+BEGIN_SRC emacs-lisp
+    #+BEGIN_SRC emacs-lisp
 (setq use-package-always-defer t
   use-package-always-ensure t)
-#+END_SRC
+    #+END_SRC
 *** Variables
-#+BEGIN_SRC emacs-lisp
+    #+BEGIN_SRC emacs-lisp
 (defvar user-setup-directory          (expand-file-name "setup"          user-emacs-directory))
 (defvar user-setup-builtins-directory (expand-file-name "setup/builtins" user-emacs-directory))
 (defvar local-dev-package-directory   (expand-file-name "packages"       user-emacs-directory))
@@ -15,82 +15,82 @@
 (defvar user-bin-directory            (expand-file-name "bin"            "~"))
 (setq custom-file                     (expand-file-name "settings.el"    user-emacs-directory))
 (make-directory user-cache-directory t)
-#+END_SRC
+    #+END_SRC
 *** Show matching pair
-#+BEGIN_SRC emacs-lisp
+    #+BEGIN_SRC emacs-lisp
   (show-paren-mode t)
-#+END_SRC
+    #+END_SRC
 *** Use System Clipboard
-#+BEGIN_SRC emacs-lisp
+    #+BEGIN_SRC emacs-lisp
   (setq x-select-enable-clipboard t)
-#+END_SRC
+    #+END_SRC
 *** Remove bell
-#+BEGIN_SRC emacs-lisp
+    #+BEGIN_SRC emacs-lisp
   (setq ring-bell-function 'ignore)
-#+END_SRC
+    #+END_SRC
 *** Conservative Scroll
-#+BEGIN_SRC emacs-lisp
+    #+BEGIN_SRC emacs-lisp
   (setq scroll-conservatively 100)
-#+END_SRC
+    #+END_SRC
 *** Remove Tool Bar
-#+BEGIN_SRC emacs-lisp
+    #+BEGIN_SRC emacs-lisp
   (tool-bar-mode -1)
-#+END_SRC
+    #+END_SRC
 *** Remove Menu Bar
-#+BEGIN_SRC emacs-lisp
+    #+BEGIN_SRC emacs-lisp
   (menu-bar-mode -1)
-#+END_SRC
+    #+END_SRC
 *** Remove Scroll Bar
-#+BEGIN_SRC emacs-lisp
+    #+BEGIN_SRC emacs-lisp
   (scroll-bar-mode -1)
-#+END_SRC
+    #+END_SRC
 *** Subword
-#+BEGIN_SRC emacs-lisp
+    #+BEGIN_SRC emacs-lisp
   (global-subword-mode 1)
-#+END_SRC
+    #+END_SRC
 *** Remove Emacs Start Screen
-#+BEGIN_SRC emacs-lisp
+    #+BEGIN_SRC emacs-lisp
   (setq inhibit-startup-message t)
-#+END_SRC
+    #+END_SRC
 *** Start in dashboard
-#+BEGIN_SRC emacs-lisp
-  (setq initial-buffer-choice (lambda () (get-buffer "*dashboard*")))
-#+END_SRC
+    #+BEGIN_SRC emacs-lisp
+  ;;(setq initial-buffer-choice (lambda () (get-buffer "*dashboard*")))
+    #+END_SRC
 *** Don't load outdated byte code
-#+BEGIN_SRC emacs-lisp
+    #+BEGIN_SRC emacs-lisp
   (setq load-prefer-newer t)
-#+END_SRC
+    #+END_SRC
 *** Electric Pair
-#+BEGIN_SRC emacs-lisp
+    #+BEGIN_SRC emacs-lisp
   (setq electric-pair-pairs '(
 			      (?\( . ?\))
 			      (?\{ . ?\})
 			      (?\[ . ?])
 			      ))
 (electric-pair-mode t)
-#+END_SRC
+    #+END_SRC
 *** Terminal
 **** Always use zsh
-#+BEGIN_SRC emacs-lisp
+     #+BEGIN_SRC emacs-lisp
   (defvar my-term-shell "/usr/bin/zsh")
   (defadvice ansi-term (before force-bash)
     (interactive (list my-term-shell)))
   (ad-activate 'ansi-term)
-#+END_SRC
+     #+END_SRC
 **** y or n instead of yes or no
-#+BEGIN_SRC emacs-lisp
+     #+BEGIN_SRC emacs-lisp
   (defalias 'yes-or-no-p 'y-or-n-p)
-#+END_SRC
+     #+END_SRC
 *** Delete selection mode
-#+BEGIN_SRC emacs-lisp
+    #+BEGIN_SRC emacs-lisp
   (delete-selection-mode 1)
-#+END_SRC
+    #+END_SRC
 *** Set tab stops
-#+BEGIN_SRC emacs-lisp
+    #+BEGIN_SRC emacs-lisp
   (setq tab-stop-list (number-sequence 4 200 4))
-#+END_SRC
+    #+END_SRC
 *** Spell Check
-#+BEGIN_SRC emacs-lisp
+    #+BEGIN_SRC emacs-lisp
   (setq ispell-program-name "/usr/bin/aspell")
   (setq ispell-dictionary "english")
    (setq ispell-alternate-dictionary (file-truename "~/.emacs.d/misc/english-words.txt"))
@@ -102,26 +102,26 @@
   (add-hook 'c++-mode 'flyspell-prog-mode)
   (use-package helm-flyspell
     :ensure t)
-#+END_SRC
+    #+END_SRC
 *** Enable Electric Indent
     #+BEGIN_SRC emacs-lisp
     (electric-indent-mode 1)
     #+END_SRC
 *** TAB behavior
-#+BEGIN_SRC emacs-lisp
-  (setq-default tab-always-indent t)	
+    #+BEGIN_SRC emacs-lisp
+  (setq-default tab-always-indent t)
   (setq-default indent-tabs-mode nil)
   (setq-default tab-width 4)
   (setq indent-line-function 'insert-tab)
-#+END_SRC
+    #+END_SRC
 *** Use async when possible
-#+BEGIN_SRC emacs-lisp
+    #+BEGIN_SRC emacs-lisp
   (use-package async
     :ensure t
     :init (dired-async-mode 1))
-#+END_SRC
+    #+END_SRC
 *** ENV VARS & Load Path
-#+BEGIN_SRC emacs-lisp
+    #+BEGIN_SRC emacs-lisp
   (let ((path (shell-command-to-string ". ~/.zshrc; echo -n $PATH")))
     (setenv "PATH" path))
 
@@ -147,15 +147,15 @@
   (add-to-list 'exec-path (expand-file-name "~/code/go/bin/golangci-lint"))
   (add-to-list 'exec-path (expand-file-name "~/.cargo/bin/ra_lsp_server"))
 
-#+END_SRC
+    #+END_SRC
 *** File Associations
-#+BEGIN_SRC emacs-lisp
+    #+BEGIN_SRC emacs-lisp
 ;; setup files ending in “.gohtml” to open in web-mode
 (add-to-list 'auto-mode-alist '("\\.gohtml\\'" . web-mode))
-#+END_SRC
+    #+END_SRC
 ** Packages
 *** Language Server
-#+BEGIN_SRC emacs-lisp
+    #+BEGIN_SRC emacs-lisp
   (use-package lsp-mode
     :init (setq lsp-rust-server 'rust-anayzer)
     :ensure t
@@ -192,39 +192,39 @@
     (dap-ui-mode 1)
     (dap-tooltip-mode 1)
     (tooltip-mode 1))
-#+END_SRC
+    #+END_SRC
 *** Origami
-#+BEGIN_SRC emacs-lisp
+    #+BEGIN_SRC emacs-lisp
   (use-package origami
     :ensure t
     :hook (prog-mode . origami-mode))
-#+END_SRC
+    #+END_SRC
 *** Fix Regex
-#+BEGIN_SRC emacs-lisp
+    #+BEGIN_SRC emacs-lisp
   (use-package pcre2el
     :ensure t
     :config (pcre-mode)
     :diminish pcre-mode)
-#+END_SRC
+    #+END_SRC
 *** key-chord
-#+BEGIN_SRC emacs-lisp
+    #+BEGIN_SRC emacs-lisp
   (use-package key-chord
     :ensure t
     :init (key-chord-mode 1)
     :config
     (setq key-chord-two-keys-delay 0.075)
     :diminish key-chord-mode)
-#+END_SRC
+    #+END_SRC
 *** GitGutter
-#+BEGIN_SRC emacs-lisp
+    #+BEGIN_SRC emacs-lisp
   (use-package git-gutter
     :ensure t
     :config
     (add-hook 'prog-mode-hook 'git-gutter-mode)
     :diminish git-gutter-mode)
-#+END_SRC
+    #+END_SRC
 *** Diminish
-#+BEGIN_SRC emacs-lisp
+    #+BEGIN_SRC emacs-lisp
   (use-package diminish
     :ensure t
     :config
@@ -233,9 +233,9 @@
     (diminish 'auto-revert-mode)
     (diminish 'subword-mode)
 )
-#+END_SRC
+    #+END_SRC
 *** Helm
-#+BEGIN_SRC emacs-lisp
+    #+BEGIN_SRC emacs-lisp
   (use-package helm
     :ensure t
     :bind
@@ -255,9 +255,9 @@
   (use-package helm-ispell
     :ensure t
     :defer t)
-#+END_SRC
+    #+END_SRC
 *** Company
-#+BEGIN_SRC emacs-lisp
+    #+BEGIN_SRC emacs-lisp
   (use-package company
     :ensure t
     :config
@@ -282,42 +282,42 @@
     :config
     (add-to-list 'company-backends 'company-math-symbols-unicode)
     (add-to-list 'company-backends 'company-math-symbols-latex))
-#+END_SRC
+    #+END_SRC
 *** Ido Vertical
-#+BEGIN_SRC emacs-lisp
+    #+BEGIN_SRC emacs-lisp
   (use-package ido-vertical-mode
     :ensure t
     :init (ido-vertical-mode 1)
     :config
     (setq ido-vertical-define-keys 'C-n-andC-p-only))
-#+END_SRC
+    #+END_SRC
 *** Swiper
-#+BEGIN_SRC emacs-lisp
+    #+BEGIN_SRC emacs-lisp
     (use-package swiper
       :ensure t
       :bind ("C-s" . swiper))
-#+END_SRC
+    #+END_SRC
 *** Flycheck
-#+BEGIN_SRC emacs-lisp
+    #+BEGIN_SRC emacs-lisp
   (use-package flycheck
     :ensure t
     :init (global-flycheck-mode t)
     :diminish flycheck-mode)
-#+END_SRC
+    #+END_SRC
 *** YASnippet
-  #+BEGIN_SRC emacs-lisp
+    #+BEGIN_SRC emacs-lisp
     (use-package yasnippet
       :ensure t
       :init (yas-global-mode 1)
       :diminish yas-minor-mode)
-#+END_SRC
+    #+END_SRC
 *** auto-yasnippet
-#+BEGIN_SRC emacs-lisp
+    #+BEGIN_SRC emacs-lisp
   (use-package auto-yasnippet
     :ensure t)
-#+END_SRC
+    #+END_SRC
 *** ggtags
-#+BEGIN_SRC emacs-lisp
+    #+BEGIN_SRC emacs-lisp
   (use-package ggtags
     :ensure t
     :defer t
@@ -326,9 +326,9 @@
 		(lambda ()
 		  (when (derived-mode-p 'c-mode 'c++-mode 'java-mode)
 		    (ggtags-mode 1)))))
-#+END_SRC
+    #+END_SRC
 *** Emmet
-#+BEGIN_SRC emacs-lisp
+    #+BEGIN_SRC emacs-lisp
   (use-package emmet-mode
 	:ensure t
 	:config
@@ -343,9 +343,9 @@
 				 )
 		  )
 	)
-#+END_SRC
+    #+END_SRC
 *** projectile
-#+BEGIN_SRC emacs-lisp
+    #+BEGIN_SRC emacs-lisp
   (use-package projectile
     :ensure t
     :init (projectile-mode 1)
@@ -382,53 +382,53 @@
       :init (counsel-projectile-mode 1)
       :config
       (define-key projectile-mode-map (kbd "C-c p") 'projectile-command-map))
-#+END_SRC
+    #+END_SRC
 *** popup-kill-ring
-#+BEGIN_SRC emacs-lisp
+    #+BEGIN_SRC emacs-lisp
   (use-package popup-kill-ring
     :ensure t
     :bind ("M-y" . popup-kill-ring))
-#+END_SRC
+    #+END_SRC
 *** hungry-delete
-#+BEGIN_SRC emacs-lisp
+    #+BEGIN_SRC emacs-lisp
   (use-package hungry-delete
     :ensure t
     :config (global-hungry-delete-mode)
     :diminish hungry-delete-mode)
-#+END_SRC
+    #+END_SRC
 *** expand-region
-#+BEGIN_SRC emacs-lisp
+    #+BEGIN_SRC emacs-lisp
   (use-package expand-region
     :ensure t)
-#+END_SRC
+    #+END_SRC
 *** Highlight todos
-#+BEGIN_SRC emacs-lisp
+    #+BEGIN_SRC emacs-lisp
   (use-package hl-todo
     :ensure t
     :config
     (global-hl-todo-mode))
-#+END_SRC
+    #+END_SRC
 *** lorem-ipsum
-#+BEGIN_SRC emacs-lisp
+    #+BEGIN_SRC emacs-lisp
   (use-package lorem-ipsum
     :ensure t
     :defer t)
-#+END_SRC
+    #+END_SRC
 *** uuidgen
-#+BEGIN_SRC emacs-lisp
+    #+BEGIN_SRC emacs-lisp
   (use-package uuidgen
     :ensure t
     :defer t)
-#+END_SRC
+    #+END_SRC
 *** rainbow-mode
-#+BEGIN_SRC emacs-lisp
+    #+BEGIN_SRC emacs-lisp
   (use-package rainbow-mode
     :ensure t
     :defer t)
-#+END_SRC
+    #+END_SRC
 ** Navigation
 *** Avy
-#+BEGIN_SRC emacs-lisp
+    #+BEGIN_SRC emacs-lisp
   (use-package avy
     :ensure t
     :bind (("C-c j w" . avy-goto-word-1)
@@ -436,7 +436,7 @@
 	   ("C-c j b" . avy-pop-mark)
 	   ("C-c j c" . avy-goto-char-2)
 	   ("C-c j s" . avy-goto-symbol-1)))
-#+END_SRC
+    #+END_SRC
 *** Line Numbers
     #+BEGIN_SRC emacs-lisp
       (add-hook 'prog-mode-hook (lambda ()
@@ -444,7 +444,7 @@
 				  (setq display-line-numbers-type 'relative)))
     #+END_SRC
 *** Evil Mode
-#+BEGIN_SRC emacs-lisp
+    #+BEGIN_SRC emacs-lisp
    ;; (use-package goto-last-change
    ;;   :ensure t)
 
@@ -498,156 +498,156 @@
     (require 'evil-org-agenda)
     (evil-org-agenda-set-keys)
   )
-#+END_SRC
+    #+END_SRC
 ** Look and Feel
 *** General
 **** Line Highlight
-#+BEGIN_SRC emacs-lisp
+     #+BEGIN_SRC emacs-lisp
   (global-hl-line-mode -1)
   (add-hook 'prog-mode-hook
     (lambda()
       (hl-line-mode 1))
     )
-#+END_SRC
+     #+END_SRC
 **** Prettify Symbols
-#+BEGIN_SRC emacs-lisp
+     #+BEGIN_SRC emacs-lisp
 (global-prettify-symbols-mode t)
-#+END_SRC
+     #+END_SRC
 *** Set Font
-#+BEGIN_SRC emacs-lisp
+    #+BEGIN_SRC emacs-lisp
 (add-to-list 'default-frame-alist '(font . "Hack-10"))
-#+END_SRC
+    #+END_SRC
 *** Themes
 **** Add custom theme folder
-#+BEGIN_SRC emacs-lisp
+     #+BEGIN_SRC emacs-lisp
 (add-to-list 'custom-theme-load-path "~/.emacs.d/custom-themes")
-#+END_SRC
+     #+END_SRC
 **** Doom Themes
-#+BEGIN_SRC emacs-lisp
+     #+BEGIN_SRC emacs-lisp
   (use-package doom-themes
     ;; :disabled t
     :ensure t
     :init
     (load-theme 'doom-gruvbox :no-confirm))
-#+END_SRC
+     #+END_SRC
 **** Atom One Dark
-#+BEGIN_SRC emacs-lisp
+     #+BEGIN_SRC emacs-lisp
   (use-package atom-one-dark-theme
     :disabled t
     :ensure t
     :init
     (load-theme 'atom-one-dark :no-confirm))
-#+END_SRC
+     #+END_SRC
 **** Northcode
-#+BEGIN_SRC emacs-lisp
+     #+BEGIN_SRC emacs-lisp
   (use-package northcode-theme
 	:disabled t
 	:ensure t
 	:init
 	(load-theme 'northcode :no-confirm))
-#+END_SRC
+     #+END_SRC
 **** Gruvbox
-#+BEGIN_SRC emacs-lisp
+     #+BEGIN_SRC emacs-lisp
   (use-package gruvbox-theme
 	:disabled t
 	:ensure t
 	:init
 	(load-theme 'gruvbox-dark-hard :no-confirm))
-#+END_SRC
+     #+END_SRC
 **** Gotham
-#+BEGIN_SRC emacs-lisp
+     #+BEGIN_SRC emacs-lisp
   (use-package gotham-theme
     :disabled t
     :ensure t
     :init
     (load-theme 'gotham :no-confirm))
-#+END_SRC
+     #+END_SRC
 **** Zenburn
-#+BEGIN_SRC emacs-lisp
+     #+BEGIN_SRC emacs-lisp
   (use-package zenburn-theme
     :disabled t
     :ensure t
     :config
     (load-theme 'zenburn :no-confirm))
-#+END_SRC
+     #+END_SRC
 **** Foggy Night
-#+BEGIN_SRC emacs-lisp
+     #+BEGIN_SRC emacs-lisp
   (use-package foggy-night-theme
 	:disabled t
 	:ensure t
 	:init
 	(load-theme 'foggy-night :no-confirm))
-#+END_SRC
+     #+END_SRC
 *** All the Icons
-#+BEGIN_SRC emacs-lisp
+    #+BEGIN_SRC emacs-lisp
   (use-package all-the-icons
     :ensure t)
-#+END_SRC
+    #+END_SRC
 *** Modeline
 **** Show Line and Column Numbers on modeline
-#+BEGIN_SRC emacs-lisp
+     #+BEGIN_SRC emacs-lisp
   (line-number-mode 1)
   (column-number-mode 1)
-#+END_SRC
+     #+END_SRC
 **** Spaceline
-#+BEGIN_SRC emacs-lisp
+     #+BEGIN_SRC emacs-lisp
 (use-package spaceline
     :ensure t
     :config
     (require 'spaceline-config)
     (setq powerline-default-separator (quote slant))
     (spaceline-spacemacs-theme))
-#+END_SRC
+     #+END_SRC
 *** Beacon
-#+BEGIN_SRC emacs-lisp
+    #+BEGIN_SRC emacs-lisp
   (use-package beacon
     :ensure t
     :init (beacon-mode 1)
     :diminish beacon-mode)
-#+END_SRC
+    #+END_SRC
 *** Dashboard
-#+BEGIN_SRC emacs-lisp
+    #+BEGIN_SRC emacs-lisp
   (use-package dashboard
     :ensure t
     :config
     (dashboard-setup-startup-hook)
     (setq dashboard-items '(
-			    (recents . 5)
-			    (projects . 10)
-			    ))
+                (recents . 5)
+                (projects . 10)
+                ))
     (setq dashboard-banner-logo-title "")
     (setq dashboard-startup-banner "~/.emacs.d/img/dashLogo.png"))
     (setq initial-buffer-choice (lambda () (get-buffer "*dashboard*")))
-#+END_SRC
+    #+END_SRC
 *** rainbow-delimiters
-#+BEGIN_SRC emacs-lisp
+    #+BEGIN_SRC emacs-lisp
   (use-package rainbow-delimiters
     :ensure t
     :init (rainbow-delimiters-mode 1))
-#+END_SRC
+    #+END_SRC
 *** Golden Ratio
-#+BEGIN_SRC emacs-lisp
+    #+BEGIN_SRC emacs-lisp
   (use-package golden-ratio
     :ensure t
     :config
     (golden-ratio-mode 1)
     :diminish golden-ratio-mode)
-#+END_SRC
+    #+END_SRC
 ** Windows and Buffers
 *** Buffers
 **** Kill current buffer
-#+BEGIN_SRC emacs-lisp
+     #+BEGIN_SRC emacs-lisp
   (defun kill-current-buffer ()
     (interactive)
     (kill-buffer (current-buffer)))
   (global-set-key (kbd "C-x k") 'kill-current-buffer)
-#+END_SRC
+     #+END_SRC
 **** Expert Mode
-#+BEGIN_SRC emacs-lisp
+     #+BEGIN_SRC emacs-lisp
   (setq ibuffer-expert t)
-#+END_SRC
+     #+END_SRC
 **** Enable IBuffer
-#+BEGIN_SRC emacs-lisp
+     #+BEGIN_SRC emacs-lisp
   (global-set-key (kbd "C-x b") 'ibuffer)
   (setq ibuffer-saved-filter-groups
 	(quote (("home"
@@ -683,22 +683,22 @@
   ;; Don't show filter groups if there are no buffers in that group
   (setq ibuffer-show-empty-filter-groups nil)
 
-#+END_SRC
+     #+END_SRC
 **** Switch Buffers
-#+BEGIN_SRC emacs-lisp
+     #+BEGIN_SRC emacs-lisp
   ;;(global-set-key (kbd "C-x C-b") 'ido-switch-buffer)
-#+END_SRC
+     #+END_SRC
 **** IDO Vertical Mode
-#+BEGIN_SRC emacs-lisp
+     #+BEGIN_SRC emacs-lisp
 (use-package ido-vertical-mode
   :ensure t
   :init
 (ido-vertical-mode 1))
 (setq ido-vertical-define-keys 'C-n-andC-p-only)
-#+END_SRC
+     #+END_SRC
 *** Windows
 **** Switch-Window
-#+BEGIN_SRC emacs-lisp
+     #+BEGIN_SRC emacs-lisp
   (use-package switch-window
     :ensure t
     :config
@@ -710,84 +710,84 @@
 	  '("a" "s" "d" "f" "j" "k" "l"))
     :bind
     ([remap other-window] . switch-window))
-#+END_SRC
+     #+END_SRC
 **** Window Splitting
-Custom functions that will split the window and switch focus to the
-newly created window
+     Custom functions that will split the window and switch focus to the
+     newly created window
 ***** Horizontal Split
-#+BEGIN_SRC emacs-lisp
+      #+BEGIN_SRC emacs-lisp
   (defun split-and-follow-horizontally ()
     (interactive)
     (split-window-below)
     (balance-windows)
     (other-window 1))
   (global-set-key (kbd "C-x 2") 'split-and-follow-horizontally)
-#+END_SRC
+      #+END_SRC
 ***** Vertical Split
-#+BEGIN_SRC emacs-lisp
+      #+BEGIN_SRC emacs-lisp
   (defun split-and-follow-vertically ()
     (interactive)
     (split-window-right)
     (balance-windows)
     (other-window 1))
   (global-set-key (kbd "C-x 3") 'split-and-follow-vertically)
-#+END_SRC
+      #+END_SRC
 **** Window specific key bindings
-#+BEGIN_SRC emacs-lisp
+     #+BEGIN_SRC emacs-lisp
   (bind-key "C-c w =" 'balance-windows)
   (bind-key "C-c w k" 'delete-window)
   (bind-key "C-c w /" 'split-window-right)
   (bind-key "C-c w -" 'split-window-below)
   (bind-key "C-c w d" 'delete-other-windows)
-#+END_SRC
+     #+END_SRC
 ** File Handling
 *** Keep backup and auto-save files separate
-#+BEGIN_SRC emacs-lisp
+    #+BEGIN_SRC emacs-lisp
   (setq backup-directory-alist `((".*" . ,(locate-user-emacs-file ".backup")))
       auto-save-file-name-transforms `((".*" ,temporary-file-directory t)))
-#+END_SRC
+    #+END_SRC
 *** Delete files to trash
-#+BEGIN_SRC emacs-lisp
+    #+BEGIN_SRC emacs-lisp
   (setq delete-by-moving-to-trash t)
-#+END_SRC
+    #+END_SRC
 *** Protect user-writable files
-#+BEGIN_SRC emacs-lisp
+    #+BEGIN_SRC emacs-lisp
   (use-package hardhat
     :ensure t
     :init (global-hardhat-mode)
     :diminish global-hardhat-mode)
-#+END_SRC
+    #+END_SRC
 *** Edit files as root
-#+BEGIN_SRC emacs-lisp
+    #+BEGIN_SRC emacs-lisp
   (use-package sudo-edit
     :ensure t
     :defer t
     :bind ("C-c f s" . sudo-edit))
-#+END_SRC
+    #+END_SRC
 ** Convenience Functions
 *** visit configuration file
-#+BEGIN_SRC emacs-lisp
+    #+BEGIN_SRC emacs-lisp
   (defun config-visit ()
     (interactive)
     (find-file "~/.emacs.d/myconfig.org"))
-#+END_SRC
+    #+END_SRC
 *** reload configuration file
-#+BEGIN_SRC emacs-lisp
+    #+BEGIN_SRC emacs-lisp
   (defun config-reload ()
     (interactive)
     (org-babel-load-file (expand-file-name "~/.emacs.d/myconfig.org")))
-#+END_SRC
+    #+END_SRC
 *** Emacs server shutdown
-#+BEGIN_SRC emacs-lisp
+    #+BEGIN_SRC emacs-lisp
   ;;; define function to shutdown emacs server instance
   (defun server-shutdown ()
     "Save buffers, Quit, and Shutdown (kill) server"
     (interactive)
     (save-buffers-kill-emacs))
-#+END_SRC
+    #+END_SRC
 
 *** Move Line Up and Move Line Down
-#+BEGIN_SRC emacs-lisp
+    #+BEGIN_SRC emacs-lisp
   (defun move-line-up ()
     (interactive)
     (transpose-lines 1)
@@ -801,36 +801,36 @@ newly created window
 
   (global-set-key (kbd "M-<up>") 'move-line-up)
   (global-set-key (kbd "M-<down>") 'move-line-down)
-#+END_SRC
+    #+END_SRC
 *** Refresh Flymake (used in rustic-mode)
-#+BEGIN_SRC emacs-lisp
+    #+BEGIN_SRC emacs-lisp
   (defun flymake-clear ()
     (interactive)
     (flymake-mode-off)
     (flymake-mode-on))
-#+END_SRC
+    #+END_SRC
 ** Macros
-#+BEGIN_SRC emacs-lisp
+   #+BEGIN_SRC emacs-lisp
   (fset 'colonize
 	[escape ?A ?\; escape ?o])
-#+END_SRC
+   #+END_SRC
 ** Major Modes and Languages
 *** Org
 **** Org Snippets
-#+BEGIN_SRC emacs-lisp
+     #+BEGIN_SRC emacs-lisp
   (setq org-src-window-setup 'current-window)
   (add-to-list 'org-structure-template-alist
 	       '("el" "#+BEGIN_SRC emacs-lisp\n?\n#+END_SRC"))
-#+END_SRC
+     #+END_SRC
 **** Org Bullets
-#+BEGIN_SRC emacs-lisp
+     #+BEGIN_SRC emacs-lisp
   (use-package org-bullets
     :ensure t
     :config
     (add-hook 'org-mode-hook (lambda () (org-bullets-mode))))
-#+END_SRC
+     #+END_SRC
 *** Go
-#+BEGIN_SRC emacs-lisp
+    #+BEGIN_SRC emacs-lisp
   ;; (use-package go-dlv
   ;;   :ensure t)
 
@@ -893,9 +893,9 @@ newly created window
   ;;   :ensure t
   ;;   :config
   ;;   (add-to-list 'load-path (concat (getenv "GOPATH")  "/src/github.com/golang/lint/misc/emacs")))
-#+END_SRC
+    #+END_SRC
 *** Rust
-#+BEGIN_SRC emacs-lisp
+    #+BEGIN_SRC emacs-lisp
   (use-package rust-mode
     :ensure t
     :mode "\\.rs\\'"
@@ -927,9 +927,9 @@ newly created window
     :ensure t
     :mode (("\\.toml\\'" . toml-mode)
 	    ("/Pipfile\\'" . toml-mode)))
-#+END_SRC
+    #+END_SRC
 *** Latex
-#+BEGIN_SRC emacs-lisp
+    #+BEGIN_SRC emacs-lisp
   ;; (use-package auctex
   ;;   :ensure t
   ;;   :hook (tex-mode . auctex-mode))
@@ -946,9 +946,9 @@ newly created window
   ;;			 (setq company-idle-delay .2
   ;;			       company-tooltip-limit 20)
   ;;			 (set(make-local-variable 'company-backends) '(company-auctex)))))
-#+END_SRC
+    #+END_SRC
 *** Bash
-#+BEGIN_SRC emacs-lisp
+    #+BEGIN_SRC emacs-lisp
   (defun my-sh ()
     (require 'lsp-mode)
     (require 'lsp-ui)
@@ -959,9 +959,9 @@ newly created window
 			    (set(make-local-variable 'company-backends) '(company-lsp)))))
 
   (add-hook 'sh-mode #'my-sh)
-#+END_SRC
+    #+END_SRC
 *** Kotlin
-#+BEGIN_SRC emacs-lisp
+    #+BEGIN_SRC emacs-lisp
   (use-package kotlin-mode
     :ensure t
     :mode ("\\.kt\\'")
@@ -979,9 +979,9 @@ newly created window
     :ensure t
     :config (flycheck-kotlin-setup))
 
-#+END_SRC
+    #+END_SRC
 *** C/C++
-#+BEGIN_SRC emacs-lisp
+    #+BEGIN_SRC emacs-lisp
   (use-package cc-mode
 	:defer t
 	:config
@@ -1024,111 +1024,120 @@ newly created window
 
   (use-package make-mode
 	:hook (make-mode . (lambda() setq indent-tabs-mode t)))
-#+END_SRC
+    #+END_SRC
 *** Web
-#+BEGIN_SRC emacs-lisp
+    #+BEGIN_SRC emacs-lisp
 
-  (use-package web-mode
-	:ensure t
-	:defer t
-	:mode (("\\.html\\'" . web-mode)
-	   ("\\.gohtml\\'" . web-mode))
-	:config
-	(require 'company-lsp)
-	(require 'lsp-ui)
-	(require 'lsp-clients)
-	:hook ((web-mode . lsp) (web-mode . emmet-mode) (web-mode . (lambda ()
-			   (setq company-idle-delay .2
-				 company-tooltip-limit 20)
-			   (set(make-local-variable 'company-backends) '(company-lsp))))))
-
-
-  (use-package css-mode           
-	:defer t
-	:mode ("\\.css\\'")
-	:config (setq css-indent-offset 4)
-	(require 'company-lsp)
-	(require 'lsp-ui)
-	(require 'lsp-clients)
-	:hook ((css-mode . lsp) (css-mode . (lambda ()
-			   (setq company-idle-delay .2
-				 company-tooltip-limit 20)
-			   (set(make-local-variable 'company-backends) '(company-lsp))))))
-
-  (use-package scss-mode     
-	:defer t
-	:mode ("\\.scss\\'")
-	:config
-	(require 'company-lsp)
-	(require 'lsp-ui)
-	(require 'lsp-clients)
-	:hook ((scss-mode . lsp) (scss-mode . (lambda ()
-			   (setq company-idle-delay .2
-				 company-tooltip-limit 20)
-			   (set(make-local-variable 'company-backends) '(company-lsp))))))
+      (use-package web-mode
+        :ensure t
+        :defer t
+        :mode (("\\.html\\'" . web-mode)
+           ("\\.gohtml\\'" . web-mode))
+        :config
+        (add-to-list 'auto-mode-alist '("\\.html?\\'" . web-mode))
+        (add-to-list 'auto-mode-alist '("\\.gohtml?\\'" . web-mode))
+        (setq web-mode-engines-alist
+            '(("go"    . "\\.gohtml\\'")
+                ("blade"  . "\\.blade\\."))
+        )
+        (setq web-mode-code-indent-offset 4
+              web-mode-css-indent-offset 4
+              web-mode-markup-indent-offset 4)
+        (require 'company-lsp)
+        (require 'lsp-ui)
+        (require 'lsp-clients)
+        :hook ((web-mode . lsp) (web-mode . emmet-mode) (web-mode . (lambda ()
+                   (setq company-idle-delay .2
+                     company-tooltip-limit 20)
+                   (set(make-local-variable 'company-backends) '(company-lsp))))))
 
 
-  (use-package sass-mode     
-	:defer t
-	:mode ("\\.sass\\'")
-	:config
-	(require 'company-lsp)
-	(require 'lsp-ui)
-	(require 'lsp-clients)
-	:hook ((sass-mode . lsp) (sass-mode . (lambda ()
-			   (setq company-idle-delay .2
-				 company-tooltip-limit 20)
-			   (set(make-local-variable 'company-backends) '(company-lsp))))))
+      (use-package css-mode
+        :defer t
+        :mode ("\\.css\\'")
+        :config (setq css-indent-offset 4)
+        (require 'company-lsp)
+        (require 'lsp-ui)
+        (require 'lsp-clients)
+        :hook ((css-mode . lsp) (css-mode . (lambda ()
+                   (setq company-idle-delay .2
+                     company-tooltip-limit 20)
+                   (set(make-local-variable 'company-backends) '(company-lsp))))))
+
+      (use-package scss-mode
+        :defer t
+        :mode ("\\.scss\\'")
+        :config
+        (require 'company-lsp)
+        (require 'lsp-ui)
+        (require 'lsp-clients)
+        :hook ((scss-mode . lsp) (scss-mode . (lambda ()
+                   (setq company-idle-delay .2
+                     company-tooltip-limit 20)
+                   (set(make-local-variable 'company-backends) '(company-lsp))))))
 
 
-  (use-package js2-mode     
-	:defer t
-	:mode ("\\.js\\'")
-	:config
-	(require 'dap-firefox)
-	(require 'company-lsp)
-	(require 'lsp-ui)
-	(require 'lsp-clients)
-	:hook ((js2-mode . lsp) (js2-mode . (lambda ()
-			   (setq company-idle-delay .2
-				 company-tooltip-limit 20)
-			   (set(make-local-variable 'company-backends) '(company-lsp))))))
+      (use-package sass-mode
+        :defer t
+        :mode ("\\.sass\\'")
+        :config
+        (require 'company-lsp)
+        (require 'lsp-ui)
+        (require 'lsp-clients)
+        :hook ((sass-mode . lsp) (sass-mode . (lambda ()
+                   (setq company-idle-delay .2
+                     company-tooltip-limit 20)
+                   (set(make-local-variable 'company-backends) '(company-lsp))))))
 
 
-  (use-package vue-mode     
-	:defer t
-	:mode ("\\.vue\\'")
-	:config
-	(require 'company-lsp)
-	(require 'lsp-ui)
-	(require 'lsp-clients)
-	:hook ((vue-mode . lsp) (vue-mode . (lambda ()
-			   (setq company-idle-delay .2
-				 company-tooltip-limit 20)
-			   (set(make-local-variable 'company-backends) '(company-lsp))))))
-#+END_SRC
+      (use-package js2-mode
+        :defer t
+        :mode ("\\.js\\'")
+        :config
+        (require 'dap-firefox)
+        (require 'company-lsp)
+        (require 'lsp-ui)
+        (require 'lsp-clients)
+        :hook ((js2-mode . lsp) (js2-mode . (lambda ()
+                   (setq company-idle-delay .2
+                     company-tooltip-limit 20)
+                   (set(make-local-variable 'company-backends) '(company-lsp))))))
+
+
+      (use-package vue-mode
+        :defer t
+        :mode ("\\.vue\\'")
+        :config
+        (require 'company-lsp)
+        (require 'lsp-ui)
+        (require 'lsp-clients)
+        :hook ((vue-mode . lsp) (vue-mode . (lambda ()
+                   (setq company-idle-delay .2
+                     company-tooltip-limit 20)
+                   (set(make-local-variable 'company-backends) '(company-lsp))))))
+    #+END_SRC
 *** Python
-#+BEGIN_SRC emacs-lisp
+    #+BEGIN_SRC emacs-lisp
   (use-package elpy
     :ensure t
     :init (elpy-enable))
-#+END_SRC
+    #+END_SRC
 *** GDScript
-#+BEGIN_SRC emacs-lisp
+    #+BEGIN_SRC emacs-lisp
   (use-package gdscript-mode
     :ensure t
     :mode "\\.gd\\'")
-#+END_SRC
+    #+END_SRC
 *** PDF
-#+BEGIN_SRC emacs-lisp
+    #+BEGIN_SRC emacs-lisp
   (use-package pdf-tools
     :ensure t
     :mode ("\\.pdf\\'" . pdf-view-mode)
     :init (pdf-loader-install)
     :hook (pdf-view-mode . evil-mode))
-#+END_SRC
+    #+END_SRC
 *** ERC
-#+BEGIN_SRC emacs-lisp
+    #+BEGIN_SRC emacs-lisp
   (setq erc-nick "jeckmate")
   (setq erc-prompt (lambda () (concat "[" (buffer-name) "]")))
   (setq erc-hide-list '("JOIN" "PART" "QUIT"))
@@ -1152,10 +1161,10 @@ newly created window
     :ensure t
     :defer t
     :hook (erc-mode . erc-twitch-enable))
-#+END_SRC
+    #+END_SRC
 ** Key and Keybindings
 *** which-key
-#+BEGIN_SRC emacs-lisp
+    #+BEGIN_SRC emacs-lisp
   (use-package which-key
 	:ensure t
 	:init (which-key-mode)
@@ -1250,18 +1259,19 @@ newly created window
 	  "SPC m" "C++/personal")
 
 	(which-key-add-major-mode-key-based-replacements 'web-mode
-	  "C-c C-a" "web/attributes"
-	  "C-c C-b" "web/blocks"
-	  "C-c C-d" "web/dom"
-	  "C-c C-e" "web/element"
-	  "C-c C-t" "web/tags")
+	  "SPC m" "web/personal"
+      "SPC m a" "web/attributes"
+      "SPC m b" "web/blocks"
+      "SPC m d" "web/dom"
+      "SPC m e" "web/element"
+      "SPC m t" "web/tags")
 
 	:diminish which-key-mode
 	)
-#+END_SRC
+    #+END_SRC
 *** Personal Key Bindings
 **** general
-#+BEGIN_SRC emacs-lisp
+     #+BEGIN_SRC emacs-lisp
   (evil-leader/set-key
     "SPC" 'helm-M-x
     ";" 'comment-dwim
@@ -1284,32 +1294,32 @@ newly created window
   ;; Colonize, from INSERT mode, Moves to End of line and adds semicolon
   (define-key evil-insert-state-map (kbd "C-<return>") 'colonize)
 
-#+END_SRC
+     #+END_SRC
 **** BOOKMARKS
-#+BEGIN_SRC emacs-lisp
+     #+BEGIN_SRC emacs-lisp
   (evil-leader/set-key
     "Bl" 'list-bookmarks)
-#+END_SRC
+     #+END_SRC
 **** BUFFERS
-#+BEGIN_SRC emacs-lisp
+     #+BEGIN_SRC emacs-lisp
   (evil-leader/set-key
     "bk" 'kill-current-buffer
     "bb" 'ido-switch-buffer
     "bB" 'ibuffer
     "bs" 'helm-buffers-list
     "br" 'revert-buffer)
-#+END_SRC
+     #+END_SRC
 **** COMPILE
-#+BEGIN_SRC emacs-lisp
+     #+BEGIN_SRC emacs-lisp
   (evil-leader/set-key
     "cc" 'helm-make-projectile
     "cC" 'compile
     "ck" 'kill-compilation
     "cm" 'helm-make
     "cr" 'recompile)
-#+END_SRC
+     #+END_SRC
 **** DEBUG
-#+BEGIN_SRC emacs-lisp
+     #+BEGIN_SRC emacs-lisp
   (evil-leader/set-key
     "db" 'dap-breakpoint-toggle
     "dc" 'dap-continue
@@ -1320,18 +1330,18 @@ newly created window
     "do" 'dap-step-out
     "dt" 'dap-stop-thread
     "dx" 'dap-delete-all-sessions)
-#+END_SRC
+     #+END_SRC
 **** ERRORS
-#+BEGIN_SRC emacs-lisp
+     #+BEGIN_SRC emacs-lisp
   (evil-leader/set-key
     "ec" 'flycheck-clear
     "eh" 'flycheck-describe-checker
     "el" 'flycheck-list-errors
     "en" 'flycheck-next-error
     "ep" 'flycheck-previous-error)
-#+END_SRC
+     #+END_SRC
 **** FILES
-#+BEGIN_SRC emacs-lisp
+     #+BEGIN_SRC emacs-lisp
   (evil-leader/set-key
     "f." 'helm-find-files
     "fr" 'helm-recentf
@@ -1339,15 +1349,15 @@ newly created window
     "ft" 'dired-jump
     "fce" 'config-visit
     "fcr" 'config-reload)
-#+END_SRC
+     #+END_SRC
 **** GOTO
-#+BEGIN_SRC emacs-lisp
+     #+BEGIN_SRC emacs-lisp
   (evil-leader/set-key
     "gb" 'move-beginning-of-line
     "ge" 'move-end-of-line)
-#+END_SRC
+     #+END_SRC
 **** GIT
-#+BEGIN_SRC emacs-lisp
+     #+BEGIN_SRC emacs-lisp
   (evil-leader/set-key
     "GS" 'magit-status
     "Gb" 'magit-branch-create
@@ -1359,9 +1369,9 @@ newly created window
     "GM" 'magit-merge-squash
     "Gp" 'magit-pull
     "Gr" 'magit-rebase)
-#+END_SRC
+     #+END_SRC
 **** HELP
-#+BEGIN_SRC emacs-lisp
+     #+BEGIN_SRC emacs-lisp
   (evil-leader/set-key
     "hb" 'describe-bindings
     "hc" 'describe-char
@@ -1371,9 +1381,9 @@ newly created window
     "hm" 'describe-mode
     "hp" 'describe-package
     "hv" 'describe-variable)
-#+END_SRC
+     #+END_SRC
 **** INSERT
-#+BEGIN_SRC emacs-lisp
+     #+BEGIN_SRC emacs-lisp
   (evil-leader/set-key
     "ill" 'lorem-ipsum-insert-list
     "ilp" 'lorem-ipsum-insert-paragraphs
@@ -1381,19 +1391,19 @@ newly created window
     "iu1" 'uuidgen
     "iu4" 'uuidgen)
 
-#+END_SRC
+     #+END_SRC
 **** JUMP
-#+BEGIN_SRC emacs-lisp
+     #+BEGIN_SRC emacs-lisp
   (evil-leader/set-key
     "jw" 'avy-goto-word-1
     "jl" 'avy-goto-line
     "jp" 'avy-pop-mark
     "jc" 'avy-goto-char-2
     "js" 'avy-goto-symbol-1)
-#+END_SRC
+     #+END_SRC
 **** MAJOR MODE
 ***** Go Mode
-#+BEGIN_SRC emacs-lisp
+      #+BEGIN_SRC emacs-lisp
   (evil-leader/set-key-for-mode 'go-mode
     "mt" 'go-add-tags
     "mr" 'go-rename
@@ -1424,9 +1434,9 @@ newly created window
     "mnm" 'go-goto-method-receiver
     "mpb" 'go-play-buffer
     "mpr" 'go-play-region)
-#+END_SRC
+      #+END_SRC
 ***** Rust Mode
-#+BEGIN_SRC emacs-lisp
+      #+BEGIN_SRC emacs-lisp
   (evil-leader/set-key-for-mode 'rustic-mode
     "mcf" 'cargo-process-fmt
     "mci" 'cargo-process-init
@@ -1476,9 +1486,9 @@ newly created window
     "mcU" 'cargo-process-upgrade
     "mnd" 'racer-find-definition
     "ef"  'flymake-clear)
-#+END_SRC
+      #+END_SRC
 ***** C-C++ Mode
-#+BEGIN_SRC emacs-lisp
+      #+BEGIN_SRC emacs-lisp
   (evil-leader/set-key-for-mode 'c-mode
 	"mfb" 'clang-format-buffer
 	"mfr" 'clang-format-region)
@@ -1486,9 +1496,70 @@ newly created window
   (evil-leader/set-key-for-mode 'c++-mode
 	"mfb" 'clang-format-buffer
 	"mfr" 'clang-format-region)
-#+END_SRC
+      #+END_SRC
+***** Web Mode
+      #+BEGIN_SRC emacs-lisp
+  (evil-leader/set-key-for-mode 'web-mode
+	"mf" 'web-mode-buffer-indent
+    "ml" 'web-mode-file-link
+
+	"mab" 'web-mode-attribute-beginning
+	"mae" 'web-mode-attribute-end
+	"mai" 'web-mode-attribute-insert
+	"mak" 'web-mode-attribute-kill
+	"man" 'web-mode-attribute-next
+	"map" 'web-mode-attribute-previous
+	"mas" 'web-mode-attribute-select
+	"mat" 'web-mode-attribute-transpose
+
+	"mbb" 'web-mode-block-beginning
+	"mbc" 'web-mode-block-close
+	"mbe" 'web-mode-block-end
+	"mbk" 'web-mode-block-kill
+	"mbn" 'web-mode-block-next
+	"mbp" 'web-mode-block-previous
+	"mbs" 'web-mode-block-select
+
+	"mda" 'web-mode-dom-apostrophes-replace
+	"mdd" 'web-mode-dom-errors-show
+	"mde" 'web-mode-dom-entities-replace
+	"mdn" 'web-mode-dom-normalize
+	"mdq" 'web-mode-dom-quotes-replace
+	"mdt" 'web-mode-dom-traverse
+	"mdx" 'web-mode-dom-xpath
+
+	"me-" 'web-mode-element-contract
+	"me/" 'web-mode-element-close
+	"meI" 'web-mode-element-insert-at-point
+	"mea" 'web-mode-element-content-select
+	"meb" 'web-mode-element-beginning
+	"mec" 'web-mode-element-clone
+	"med" 'web-mode-element-child
+	"mee" 'web-mode-element-end
+	"mef" 'web-mode-element-children-fold-or-unfold
+	"mei" 'web-mode-element-insert
+	"mek" 'web-mode-element-kill
+	"mem" 'web-mode-element-mute-blanks
+	"men" 'web-mode-element-next
+	"mep" 'web-mode-element-previous
+	"mer" 'web-mode-element-rename
+	"mes" 'web-mode-element-select
+	"met" 'web-mode-element-transpose
+	"meu" 'web-mode-element-parent
+	"mev" 'web-mode-element-vanish
+	"mew" 'web-mode-element-element-wrap
+	"mex" 'web-mode-element-extract
+
+	"mta" 'web-mode-tag-attributes-sort
+	"mtb" 'web-mode-tag-beginning
+	"mte" 'web-mode-tag-end
+	"mtm" 'web-mode-tag-match
+	"mtn" 'web-mode-tag-next
+	"mtp" 'web-mode-tag-previous
+	"mts" 'web-mode-tag-select)
+      #+END_SRC
 **** MARKING
-#+BEGIN_SRC emacs-lisp
+     #+BEGIN_SRC emacs-lisp
   (evil-leader/set-key
     "vw" 'er/mark-word
     "vu" 'er/mark-url
@@ -1498,17 +1569,17 @@ newly created window
     "vo" 'er/mark-outside-quotes
     "vf" 'er/mark-defun
     "vc" 'er/mark-comment)
-#+END_SRC
+     #+END_SRC
 **** NARROW
-#+BEGIN_SRC emacs-lisp
+     #+BEGIN_SRC emacs-lisp
   (evil-leader/set-key
     "nf" 'narrow-to-defun
     "np" 'narrow-to-page
     "nr" 'narrow-to-region
     "nw" 'widen)
-#+END_SRC
+     #+END_SRC
 **** PROJECT
-#+BEGIN_SRC emacs-lisp
+     #+BEGIN_SRC emacs-lisp
   (evil-leader/set-key
     "pb" 'projectile-switch-to-buffer
     "pc" 'projectile-compile-project
@@ -1521,9 +1592,9 @@ newly created window
     "psa" 'projectile-ag
     "psg" 'projectile-grep
     "psr" 'projectile-ripgrep)
-#+END_SRC
+     #+END_SRC
 **** TEXT
-#+BEGIN_SRC emacs-lisp
+     #+BEGIN_SRC emacs-lisp
   (evil-leader/set-key
     "xa" 'align-regexp
     "xdd" 'downcase-dwim
@@ -1543,16 +1614,16 @@ newly created window
     "xts" 'transpose-sentences
     "xtx" 'transpose-sexps
     "xtw" 'transpose-words)
-#+END_SRC
+     #+END_SRC
 **** TODOS
-#+BEGIN_SRC emacs-lisp
+     #+BEGIN_SRC emacs-lisp
   (evil-leader/set-key
     "tn" 'hl-todo-next
     "to" 'hl-todo-occur
     "tp" 'hl-todo-previous)
-#+END_SRC
+     #+END_SRC
 **** TOGGLE
-#+BEGIN_SRC emacs-lisp
+     #+BEGIN_SRC emacs-lisp
   (evil-leader/set-key
     "Tb" 'beacon-blink
     "TF" 'toggle-frame-fullscreen
@@ -1561,9 +1632,9 @@ newly created window
     "Tm" 'menu-bar-mode
     "Ts" 'scroll-bar-mode
     "Tw" 'whitespace-mode)
-#+END_SRC
+     #+END_SRC
 **** WINDOW
-#+BEGIN_SRC emacs-lisp
+     #+BEGIN_SRC emacs-lisp
   (evil-leader/set-key
     "wb" 'balance-windows
     "ww" 'switch-window
@@ -1571,19 +1642,19 @@ newly created window
     "wdo" 'delete-other-windows
     "wsh" 'split-and-follow-horizontally
     "wsv" 'split-and-follow-vertically)
-#+END_SRC
+     #+END_SRC
 **** YASNIPPET
-#+BEGIN_SRC emacs-lisp
+     #+BEGIN_SRC emacs-lisp
   (evil-leader/set-key
     "yn" 'yas-new-snippet
     "yi" 'yas-insert-snippet
     "yv" 'yas-visit-snippet-file
     "yc" 'aya-create
     "ye" 'aya-expand)
-#+END_SRC
+     #+END_SRC
 **** ORIGAMI
-#+BEGIN_SRC emacs-lisp
+     #+BEGIN_SRC emacs-lisp
   (evil-leader/set-key
     "oo" 'origami-toggle-node)
 
-#+END_SRC
+     #+END_SRC
