@@ -175,7 +175,7 @@
     :commands lsp-ui-mode
     :defer t
     :config
-    (setq lsp-ui-sideline-delay 1.0
+    (setq lsp-ui-sideline-delay 0.3
 	  lsp-ui-doc-enable nil)
     )
 
@@ -609,8 +609,9 @@
     #+BEGIN_SRC emacs-lisp
   (use-package dashboard
     :ensure t
-    :config
+    :init 
     (dashboard-setup-startup-hook)
+    :config
     (setq dashboard-items '(
                 (recents . 5)
                 (projects . 10)
@@ -831,31 +832,6 @@
      #+END_SRC
 *** Go
     #+BEGIN_SRC emacs-lisp
-  ;; (use-package go-dlv
-  ;;   :ensure t)
-
-  ;; (use-package go-mode
-  ;;   :ensure t
-  ;;   :defer t
-  ;;   :mode ("\\.go\\'" . go-mode)
-  ;;   :config
-  ;;   (require 'lsp-ui)
-  ;;   (require 'lsp-clients)
-  ;;   (require 'company-lsp)
-  ;;   (unbind-key "C-c C-j" go-mode-map)
-  ;;   (setq go-tab-width 4
-  ;;	gofmt-command "goimports")
-  ;;   :hook (
-  ;;	 (before-save . gofmt-before-save)
-  ;;	 (go-mode . flycheck-mode)
-  ;;	 (go-mode . lsp)
-  ;;	 (go-mode . (lambda ()
-  ;;		      (push 'company-lsp company-backends)
-  ;;		      (setq company-idle-delay .2
-  ;;			    company-tooltip-limit 20)
-  ;;		      (set(make-local-variable 'company-backends) '(company-lsp))))
-  ;;	 ))
-
   (use-package go-mode
     :ensure t
     :defer t
@@ -877,22 +853,6 @@
 			(setq company-idle-delay .2
 			      company-tooltip-limit 20)))
 	   ))
-  ;; (use-package go-impl
-  ;;   :ensure t
-  ;;   :after go-mode)
-
-  ;; (use-package go-guru
-  ;;   :ensure t
-  ;;   :after go-mode
-  ;;   :config (add-hook 'go-mode-hook #'go-guru-hl-identifier-mode))
-
-  ;; (use-package go-add-tags
-  ;;   :ensure t)
-
-  ;; (use-package golint
-  ;;   :ensure t
-  ;;   :config
-  ;;   (add-to-list 'load-path (concat (getenv "GOPATH")  "/src/github.com/golang/lint/misc/emacs")))
     #+END_SRC
 *** Rust
     #+BEGIN_SRC emacs-lisp
