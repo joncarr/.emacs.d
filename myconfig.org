@@ -157,16 +157,9 @@
 *** Language Server
     #+BEGIN_SRC emacs-lisp
   (use-package lsp-mode
-    :init (setq lsp-rust-server 'rust-anayzer)
     :ensure t
     :commands lsp
-    ;; :load-path "~/code/emacs/lsp-mode"
     :config
-    ;; (add-to-list 'lsp-language-id-configuration '(kotlin-mode . "kotlin"))
-    ;; (lsp-register-client
-    ;;  (make-lsp-client :new-connection (lsp-stdio-connection '("kotlin-language-server"))
-    ;;		    :major-modes '(kotlin-mode)
-    ;;		    :server-id 'kotlin-ls))
     (setq lsp-prefer-flymake nil
 	  lsp-auto-guess-root 1))
 
@@ -176,7 +169,7 @@
     :defer t
     :config
     (setq lsp-ui-sideline-delay 0.3
-	  lsp-ui-doc-enable nil)
+          lsp-ui-doc-show-with-mouse nil)
     )
 
   (use-package company-lsp
@@ -515,36 +508,12 @@
      #+END_SRC
 *** Set Font
     #+BEGIN_SRC emacs-lisp
-(add-to-list 'default-frame-alist '(font . "Hack-10"))
+(add-to-list 'default-frame-alist '(font . "FiraCode-10"))
     #+END_SRC
 *** Themes
 **** Add custom theme folder
      #+BEGIN_SRC emacs-lisp
 (add-to-list 'custom-theme-load-path "~/.emacs.d/custom-themes")
-     #+END_SRC
-**** Doom Themes
-     #+BEGIN_SRC emacs-lisp
-  (use-package doom-themes
-    ;; :disabled t
-    :ensure t
-    :init
-    (load-theme 'doom-gruvbox :no-confirm))
-     #+END_SRC
-**** Atom One Dark
-     #+BEGIN_SRC emacs-lisp
-  (use-package atom-one-dark-theme
-    :disabled t
-    :ensure t
-    :init
-    (load-theme 'atom-one-dark :no-confirm))
-     #+END_SRC
-**** Northcode
-     #+BEGIN_SRC emacs-lisp
-  (use-package northcode-theme
-	:disabled t
-	:ensure t
-	:init
-	(load-theme 'northcode :no-confirm))
      #+END_SRC
 **** Gruvbox
      #+BEGIN_SRC emacs-lisp
@@ -554,14 +523,6 @@
 	:init
 	(load-theme 'gruvbox-dark-hard :no-confirm))
      #+END_SRC
-**** Gotham
-     #+BEGIN_SRC emacs-lisp
-  (use-package gotham-theme
-    :disabled t
-    :ensure t
-    :init
-    (load-theme 'gotham :no-confirm))
-     #+END_SRC
 **** Zenburn
      #+BEGIN_SRC emacs-lisp
   (use-package zenburn-theme
@@ -570,13 +531,13 @@
     :config
     (load-theme 'zenburn :no-confirm))
      #+END_SRC
-**** Foggy Night
+**** Darktooth
      #+BEGIN_SRC emacs-lisp
-  (use-package foggy-night-theme
-	:disabled t
+  (use-package darktooth-theme
+	;;:disabled t
 	:ensure t
 	:init
-	(load-theme 'foggy-night :no-confirm))
+	(load-theme 'darktooth :no-confirm))
      #+END_SRC
 *** All the Icons
     #+BEGIN_SRC emacs-lisp
@@ -591,12 +552,10 @@
      #+END_SRC
 **** Spaceline
      #+BEGIN_SRC emacs-lisp
-(use-package spaceline
-    :ensure t
-    :config
-    (require 'spaceline-config)
-    (setq powerline-default-separator (quote slant))
-    (spaceline-spacemacs-theme))
+       (use-package spaceline
+           :ensure t
+           :init (spaceline-spacemacs-theme 1)
+           :config (require 'spaceline-config))
      #+END_SRC
 *** Beacon
     #+BEGIN_SRC emacs-lisp
@@ -838,21 +797,15 @@
     :mode ("\\.go\\'" . go-mode)
     :config
     (require 'dap-go)
-    (require 'lsp-ui)
-    (require 'lsp-clients)
-    (require 'company-lsp)
+    (require 'lsp-mode)
+    (require 'company-capf)
     (unbind-key "C-c C-j" go-mode-map)
     (setq go-tab-width 4
 	  gofmt-command "goimports")
     :hook (
 	   (before-save . gofmt-before-save)
 	   (go-mode . flycheck-mode)
-	   (go-mode . lsp)
-	   (go-mode . (lambda ()
-			(push 'company-lsp company-backends)
-			(setq company-idle-delay .2
-			      company-tooltip-limit 20)))
-	   ))
+	   (go-mode . lsp)))
     #+END_SRC
 *** Rust
     #+BEGIN_SRC emacs-lisp
@@ -863,13 +816,9 @@
 	:init (setq lsp-rust-server 'rust-analyzer)
     :config
     (setq rust-format-on-save t)
-    (require 'lsp-ui)
-    (require 'lsp-clients)
-    (require 'company-lsp)
-    :hook ((rust-mode . lsp) (rust-mode . (lambda ()
-		       (setq company-idle-delay .2
-			     company-tooltip-limit 20)
-		       (set(make-local-variable 'company-backends) '(company-lsp))))))
+    (require 'lsp-mode)
+    (require 'company-capf)
+    :hook ((rust-mode . lsp)))
 
     (use-package flycheck-rust
     :ensure t
