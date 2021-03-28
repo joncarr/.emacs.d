@@ -172,12 +172,6 @@
           lsp-ui-doc-show-with-mouse nil)
     )
 
-  (use-package company-lsp
-    :ensure t
-    :commands company-lsp
-    :config
-    (setq company-lsp-enable-snippet t))
-
   (use-package dap-mode
     :ensure t
     :config
